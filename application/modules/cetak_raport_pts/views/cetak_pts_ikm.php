@@ -126,19 +126,19 @@
 	</table>
 	<table>
 		<tr>
-			<td style="width:100px">Nama Sekolah</td>
+			<td style="width:100px">School Name</td>
 			<td>:</td>
 			<td style="font-weight: bold; width:350px">
 				<?php echo $this->config->item('nama_sekolah'); ?>
 			</td>
-			<td>Kelas</td>
+			<td>Class</td>
 			<td>:</td>
 			<td style="font-weight: bold;">
 				<?php echo strtoupper($wali_kelas['nmkelas']??"--"); ?>
 			</td>
 		</tr>
 		<tr>
-			<td style="width:100px">Alamat Sekolah</td>
+			<td style="width:100px">School Address</td>
 			<td>:</td>
 			<td style=" width:350px">
 				<?php echo $this->config->item('alamat_sekolah'); ?>
@@ -150,12 +150,12 @@
 			</td>
 		</tr>
 		<tr>
-			<td style="width:100px">Nama Siswa</td>
+			<td style="width:100px">Student Name</td>
 			<td>:</td>
 			<td style="font-weight: bold; width:350px">
 				<?php echo $det_siswa['nama']; ?>
 			</td>
-			<td>Tahun Pelajaran</td>
+			<td>Academic Year</td>
 			<td>:</td>
 			<td style="font-weight: bold;">
 				<?php echo $ta; ?>
@@ -178,7 +178,7 @@
 		<tr>
 			<td colspan="9" style="width:700px;">
 				<p>
-					<h3 style="text-align: center;">LAPORAN HASIL BELAJAR</h3>
+					<h3 style="text-align: center;">LEARNING REPORT</h3>
 				</p>
 			</td>
 		</tr>
@@ -193,8 +193,8 @@
 					<thead>
 						<tr>
 							<th style="padding: 15px 10px;">No</th>
-							<th style="padding: 15px 10px;" colspan="2">Mata Pelajaran</th>
-							<th style="padding: 15px 10px;" colspan="2">Nilai Akhir</th>
+							<th style="padding: 15px 10px;" colspan="2">Subject</th>
+							<th style="padding: 15px 10px;" colspan="2">Final Score</th>
 
 						</tr>
 					</thead>
@@ -207,9 +207,9 @@
 					<thead>
 						<tr>
 							<th style="padding: 15px 10px;">No</th>
-							<th style="padding: 15px 10px;" colspan="2">Mata Pelajaran</th>
-							<th style="padding: 15px 10px;" colspan="2">Nilai Akhir</th>
-							<th style="padding: 15px 10px;" colspan="2">UTS</th>
+							<th style="padding: 15px 10px;" colspan="2">Subject</th>
+							<th style="padding: 15px 10px;" colspan="2">Final Score</th>
+							<th style="padding: 15px 10px;" colspan="2">Midterm Score</th>
 
 						</tr>
 					</thead>
@@ -228,7 +228,7 @@
 		backimg="https://report.mhis.link/images/hanya_logo_op.png" backimgw="50%">
 		<table>
 			<tr>
-				<td colspan="9"><b>Catatan Wali Kelas</b></td>
+				<td colspan="9"><b>Homeroom Teacher's Remarks</b></td>
 			</tr>
 			<tr>
 				<td></td>

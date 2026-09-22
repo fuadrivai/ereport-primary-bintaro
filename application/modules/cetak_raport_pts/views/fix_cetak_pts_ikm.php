@@ -126,19 +126,19 @@
     </table>
     <table>
         <tr>
-            <td style="width:100px">Nama Sekolah</td>
+            <td style="width:100px">School Name</td>
             <td>:</td>
             <td style="font-weight: bold; width:350px">
                 <?= $this->config->item('nama_sekolah'); ?>
             </td>
-            <td>Kelas</td>
+            <td>Class</td>
             <td>:</td>
             <td style="font-weight: bold;">
                 <?= strtoupper($kelas ?? "--"); ?>
             </td>
         </tr>
         <tr>
-            <td style="width:100px">Alamat Sekolah</td>
+            <td style="width:100px">School Address</td>
             <td>:</td>
             <td style=" width:350px">
                 <?= $this->config->item('alamat_sekolah'); ?>
@@ -150,12 +150,12 @@
             </td>
         </tr>
         <tr>
-            <td style="width:100px">Nama Siswa</td>
+            <td style="width:100px">Student Name</td>
             <td>:</td>
             <td style="font-weight: bold; width:350px">
                 <?= $nama ?>
             </td>
-            <td>Tahun Pelajaran</td>
+            <td>Academic Year</td>
             <td>:</td>
             <td style="font-weight: bold;">
                 <?= $tasm ?>
@@ -178,7 +178,7 @@
         <tr>
             <td colspan="9" style="width:700px;">
                 <p>
-                    <h3 style="text-align: center;">LAPORAN HASIL BELAJAR</h3>
+                    <h3 style="text-align: center;">LEARNING REPORT</h3>
                 </p>
             </td>
         </tr>
@@ -192,9 +192,9 @@
                     <thead>
                         <tr>
                             <th style="padding: 15px 10px;">No</th>
-                            <th style="padding: 15px 10px;" colspan="2">Mata Pelajaran</th>
-                            <th style="padding: 15px 10px;" colspan="2">Nilai Akhir</th>
-                            <th style="padding: 15px 10px;" colspan="2">UTS</th>
+                            <th style="padding: 15px 10px;" colspan="2">Subject</th>
+                            <th style="padding: 15px 10px;" colspan="2">Final Score</th>
+                            <th style="padding: 15px 10px;" colspan="2">Midterm Score</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -232,7 +232,7 @@
                         <?php } ?>
                         <tr>
                             <td class="ctr"></td>
-                            <td style="width:295px;" colspan="2">Muatan Lokal</td>
+                            <td style="width:295px;" colspan="2">Local Content</td>
                             <?php if ($is4) { ?>
                             <td colspan="2" class="ctr" style="width:120px;padding:10px;"></td>
                             <td colspan="2" class="ctr" style="width:120px;padding:10px;"></td>
@@ -278,7 +278,7 @@
         backimg="https://report.mhis.link/images/hanya_logo_op.png" backimgw="50%">
         <table>
             <tr>
-                <td colspan="9"><b>Catatan Wali Kelas</b></td>
+                <td colspan="9"><b>Homeroom Teacher's Remarks</b></td>
             </tr>
             <tr>
                 <td></td>
