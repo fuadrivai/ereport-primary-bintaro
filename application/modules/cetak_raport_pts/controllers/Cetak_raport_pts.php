@@ -2766,8 +2766,8 @@ class Cetak_raport_pts extends CI_Controller
                                 <tr>
                                     <td class="ctr">' . $no++ . '</td>
                                     <td colspan="2" style="width:295px;">' . $m['nama'] . '</td>
-                                    <td colspan="2" class="ctr" style="width:80px;padding:10px;">' . $npa . '</td>
-                                    <td colspan="2" class="ctr" style="width:80px;padding:10px;">' . $uts . '</td>
+                                    <td colspan="2" class="ctr" style="width:240px;padding:10px;">' . $npa . '</td>
+                                     
                                     </tr>
                             ';
             } else {
@@ -2775,8 +2775,8 @@ class Cetak_raport_pts extends CI_Controller
                                 <tr>
                                     <td class="ctr">' . $no++ . '</td>
                                     <td colspan="2" style="width:295px;">' . $m['nama'] . '</td>
-                                    <td colspan="2" class="ctr" style="width:240px;padding:10px;">' . $npa . '</td>
-                                     
+                                    <td colspan="2" class="ctr" style="width:80px;padding:10px;">' . $npa . '</td>
+                                    <td colspan="2" class="ctr" style="width:80px;padding:10px;">' . $uts . '</td>
                                     </tr>
                             ';
             }
@@ -2835,8 +2835,8 @@ class Cetak_raport_pts extends CI_Controller
                                 <tr>
                                     <td class="ctr">' . $no++ . '</td>
                                     <td colspan="2" style="width:295px;">' . $m['nama'] . '</td>
-                                    <td colspan="2" class="ctr" style="width:80px;padding:10px;">' . $npa . '</td>
-                                    <td colspan="2" class="ctr" style="width:80px;padding:10px;">' . $uts . '</td>
+                                    <td colspan="2" class="ctr" style="width:240px;padding:10px;">' . $npa . '</td>
+                                     
                                     </tr>
                             ';
             } else {
@@ -2844,8 +2844,8 @@ class Cetak_raport_pts extends CI_Controller
                                 <tr>
                                     <td class="ctr">' . $no++ . '</td>
                                     <td colspan="2" style="width:295px;">' . $m['nama'] . '</td>
-                                    <td colspan="2" class="ctr" style="width:240px;padding:10px;">' . $npa . '</td>
-                                     
+                                    <td colspan="2" class="ctr" style="width:80px;padding:10px;">' . $npa . '</td>
+                                    <td colspan="2" class="ctr" style="width:80px;padding:10px;">' . $uts . '</td>
                                     </tr>
                             ';
             }
@@ -2894,8 +2894,7 @@ class Cetak_raport_pts extends CI_Controller
                                 <tr>
                                     <td class="ctr">' . $no++ . '</td>
                                     <td colspan="2" style="width:295px;">' . $m['nama'] . '</td>
-                                    <td colspan="2" class="ctr" style="width:80px;padding:10px;">' . $npa . '</td>
-                                    <td colspan="2" class="ctr" style="width:80px;padding:10px;">' . $uts . '</td>
+                                    <td colspan="2" class="ctr" style="width:240px;padding:10px;">' . $npa . '</td>
                                     </tr>
                             ';
                 } else {
@@ -2903,10 +2902,11 @@ class Cetak_raport_pts extends CI_Controller
                                 <tr>
                                     <td class="ctr">' . $no++ . '</td>
                                     <td colspan="2" style="width:295px;">' . $m['nama'] . '</td>
-                                    <td colspan="2" class="ctr" style="width:240px;padding:10px;">' . $npa . '</td>
-                                     
+                                    <td colspan="2" class="ctr" style="width:80px;padding:10px;">' . $npa . '</td>
+                                    <td colspan="2" class="ctr" style="width:80px;padding:10px;">' . $uts . '</td>
                                     </tr>
                             ';
+                    
                 }
             }
         }
@@ -2950,8 +2950,8 @@ class Cetak_raport_pts extends CI_Controller
                                 <tr>
                                     <td class="ctr">' . $no++ . '</td>
                                     <td colspan="2" style="width:295px;">' . $m['nama'] . '</td>
-                                    <td colspan="2" class="ctr" style="width:80px;padding:10px;">' . $npa . '</td>
-                                    <td colspan="2" class="ctr" style="width:80px;padding:10px;">' . $uts . '</td>
+                                    <td colspan="2" class="ctr" style="width:240px;padding:10px;">' . $npa . '</td>
+                                     
                                     </tr>
                             ';
             } else {
@@ -2959,25 +2959,25 @@ class Cetak_raport_pts extends CI_Controller
                                 <tr>
                                     <td class="ctr">' . $no++ . '</td>
                                     <td colspan="2" style="width:295px;">' . $m['nama'] . '</td>
-                                    <td colspan="2" class="ctr" style="width:240px;padding:10px;">' . $npa . '</td>
-                                     
+                                    <td colspan="2" class="ctr" style="width:80px;padding:10px;">' . $npa . '</td>
+                                    <td colspan="2" class="ctr" style="width:80px;padding:10px;">' . $uts . '</td>
                                     </tr>
                             ';
             }
         }
         if ($d['det_siswa']['tingkat'] == 0) {
             $d['nilai_utama'] .= '<tr>
-        <td class="ctr"></td>
-        <td colspan="2" style="width:280px;">Muatan Lokal</td>
-        <td colspan="2" class="ctr" style="width:120px;padding:10px;"></td>
-        <td colspan="2" class="ctr" style="width:120px;padding:10px;"></td>
-        </tr>';
+            <td class="ctr"></td>
+            <td colspan="2" style="width:280px;">Muatan Lokal</td>
+            <td colspan="2" class="ctr" style="width:240px;padding:10px;"></td>
+            </tr>';
         } else {
             $d['nilai_utama'] .= '<tr>
-        <td class="ctr"></td>
-        <td colspan="2" style="width:280px;">Muatan Lokal</td>
-        <td colspan="2" class="ctr" style="width:240px;padding:10px;"></td>
-        </tr>';
+            <td class="ctr"></td>
+            <td colspan="2" style="width:280px;">Muatan Lokal</td>
+            <td colspan="2" class="ctr" style="width:120px;padding:10px;"></td>
+            <td colspan="2" class="ctr" style="width:120px;padding:10px;"></td>
+            </tr>';
         }
         $q_mapel = $this->db->query("SELECT a.id as id,kkm,a.nama as nama, c.nama as namaguru FROM m_mapel a
         INNER JOIN t_guru_mapel b ON a.id = b.id_mapel
@@ -3024,12 +3024,13 @@ class Cetak_raport_pts extends CI_Controller
                 }
 
                 if ($d['det_siswa']['tingkat'] == 0) {
+                    
                     $d['nilai_utama'] .= '
                                 <tr>
                                     <td class="ctr">' . $no++ . '</td>
                                     <td colspan="2" style="width:295px;">' . $m['nama'] . '</td>
-                                    <td colspan="2" class="ctr" style="width:80px;padding:10px;">' . $npa . '</td>
-                                    <td colspan="2" class="ctr" style="width:80px;padding:10px;">' . $uts . '</td>
+                                    <td colspan="2" class="ctr" style="width:240px;padding:10px;">' . $npa . '</td>
+                                     
                                     </tr>
                             ';
                 } else {
@@ -3037,8 +3038,8 @@ class Cetak_raport_pts extends CI_Controller
                                 <tr>
                                     <td class="ctr">' . $no++ . '</td>
                                     <td colspan="2" style="width:295px;">' . $m['nama'] . '</td>
-                                    <td colspan="2" class="ctr" style="width:240px;padding:10px;">' . $npa . '</td>
-                                     
+                                    <td colspan="2" class="ctr" style="width:80px;padding:10px;">' . $npa . '</td>
+                                    <td colspan="2" class="ctr" style="width:80px;padding:10px;">' . $uts . '</td>
                                     </tr>
                             ';
                 }
@@ -4049,7 +4050,7 @@ class Cetak_raport_pts extends CI_Controller
             $pdf->writeHTML($html);
             
             if (file_exists($pdfPath)) {
-                @unlink($pdfPath);
+@unlink($pdfPath);
             }
             // Simpan PDF baru
             $pdf->output($pdfPath, 'F');
@@ -4089,7 +4090,7 @@ class Cetak_raport_pts extends CI_Controller
                 $pdf->setTestTdInOnePage(false);
                 $pdf->writeHTML($html);
                 if (file_exists($pdfFile)) {
-                    @unlink($pdfFile);
+@unlink($pdfFile);
                 }
                 $pdf->output($pdfFile, 'F');
             }
@@ -4170,11 +4171,11 @@ class Cetak_raport_pts extends CI_Controller
         if (file_exists($lockFile) && (time() - @filemtime($lockFile)) < 1800) { // 30 min TTL
             return $this->_end("Locked: tasm=$tasm offset=$offset", 429);
         }
-        @file_put_contents($lockFile, date('c'));
+@file_put_contents($lockFile, date('c'));
 
         // 4) Make sure cache dir exists (after auth ok)
         if (!is_dir($this->CACHE_BASE)) {
-            @mkdir($this->CACHE_BASE, 0775, true);
+@mkdir($this->CACHE_BASE, 0775, true);
         }
 
         $tahun    = substr($tasm, 0, 4);
@@ -4200,7 +4201,7 @@ class Cetak_raport_pts extends CI_Controller
         }
 
         // 7) Unlock
-        @unlink($lockFile);
+@unlink($lockFile);
 
         return $this->_end("OK tasm=$tasm offset=$offset limit=$limit generated=$generated skipped=$skipped failed=$failed", 200);
     }
@@ -4290,8 +4291,8 @@ class Cetak_raport_pts extends CI_Controller
         $html = ob_get_clean();
 
         // Safety for heavy render
-        @ini_set('memory_limit', '512M');
-        @set_time_limit(0);
+@ini_set('memory_limit', '512M');
+@set_time_limit(0);
 
         // Generate PDF
         $autoload = FCPATH . $this->HTML2PDF_AUTOLOAD;
@@ -4308,13 +4309,13 @@ class Cetak_raport_pts extends CI_Controller
 
             // Ensure cache base exists
             if (!is_dir($this->CACHE_BASE)) {
-                @mkdir($this->CACHE_BASE, 0775, true);
+@mkdir($this->CACHE_BASE, 0775, true);
             }
 
             $pdf->output($pdfPath, 'F');
 
             // Write meta
-            @file_put_contents($metaPath, json_encode([
+@file_put_contents($metaPath, json_encode([
                 'checksum'  => $checksum,
                 'generated' => date('c'),
                 'id_siswa'  => $id_siswa,

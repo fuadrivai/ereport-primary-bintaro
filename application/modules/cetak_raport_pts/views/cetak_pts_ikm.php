@@ -113,9 +113,11 @@
 		<tr>
 			<td colspan="9" style="width: 675px;">
 				<p>
-				<h5 class="font_kecil" style="text-align: center;"><img src="https://report.mhis.link/images/hanya-logo.png"
-						width="80"><br>MUTIARA HARAPAN ISLAMIC SCHOOL<br>PRIMARY LEVEL<br><?php if($semester ==1){ ; ?>FIRST<?php }else{?>SECOND<?php } ?> SEMESTER</h5>
-				<hr class="s5">
+					<h5 class="font_kecil" style="text-align: center;"><img
+							src="https://report.mhis.link/images/hanya-logo.png" width="80"><br>MUTIARA HARAPAN ISLAMIC
+						SCHOOL<br>PRIMARY LEVEL<br><?php if($semester ==1){ ; ?>FIRST<?php }else{?>SECOND<?php } ?>
+						SEMESTER</h5>
+					<hr class="s5">
 				</p>
 
 			</td>
@@ -176,7 +178,7 @@
 		<tr>
 			<td colspan="9" style="width:700px;">
 				<p>
-				<h3 style="text-align: center;">LAPORAN HASIL BELAJAR</h3>
+					<h3 style="text-align: center;">LAPORAN HASIL BELAJAR</h3>
 				</p>
 			</td>
 		</tr>
@@ -185,7 +187,7 @@
 	<table>
 		<tr>
 			<td colspan="9">
-			    <?php if ($det_siswa['tingkat'] == 0){
+				<?php if ($det_siswa['tingkat'] == 0){
 				?>
 				<table class="table">
 					<thead>
@@ -193,8 +195,7 @@
 							<th style="padding: 15px 10px;">No</th>
 							<th style="padding: 15px 10px;" colspan="2">Mata Pelajaran</th>
 							<th style="padding: 15px 10px;" colspan="2">Nilai Akhir</th>
-							<th style="padding: 15px 10px;" colspan="2">UTS</th>
-							
+
 						</tr>
 					</thead>
 					<tbody>
@@ -208,7 +209,8 @@
 							<th style="padding: 15px 10px;">No</th>
 							<th style="padding: 15px 10px;" colspan="2">Mata Pelajaran</th>
 							<th style="padding: 15px 10px;" colspan="2">Nilai Akhir</th>
-							
+							<th style="padding: 15px 10px;" colspan="2">UTS</th>
+
 						</tr>
 					</thead>
 					<tbody>
@@ -223,53 +225,53 @@
 		</tr>
 	</table>
 	<page backtop="5mm" backbottom="7mm" backleft="22mm" backright="10mm"
-	backimg="https://report.mhis.link/images/hanya_logo_op.png" backimgw="50%">
-	<table>
-		<tr>
-			<td colspan="9"><b>Catatan Wali Kelas</b></td>
-		</tr>
-	    <tr>
-	        <td></td>
-	    </tr>
-		<tr>
-			<td colspan="6" style="border: solid 1px #000; padding: 20px 10px; width:620px;">
-				<?= clean_text($catatan['catatan_wali']??"") ; ?>
-			</td>
-		</tr>
-		<tr>
-			<td colspan="6"><br><br></td>
-		</tr>
-	</table>
-	<table>
-		<tr>
-			<td style="width:200px;text-align: center;">
-				Undersign,
-				<br><br><br><br><br><br>
-				<u><b>
-						<?php echo $det_raport['nama_kepsek']??"--"; ?>
-					</b></u><br>
-				Primary Principal
-				<br>
-			</td>
-			<td style="width:233px;text-align: center;">
+		backimg="https://report.mhis.link/images/hanya_logo_op.png" backimgw="50%">
+		<table>
+			<tr>
+				<td colspan="9"><b>Catatan Wali Kelas</b></td>
+			</tr>
+			<tr>
+				<td></td>
+			</tr>
+			<tr>
+				<td colspan="6" style="border: solid 1px #000; padding: 20px 10px; width:620px;">
+					<?= clean_text($catatan['catatan_wali']??"") ; ?>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="6"><br><br></td>
+			</tr>
+		</table>
+		<table>
+			<tr>
+				<td style="width:200px;text-align: center;">
+					Undersign,
+					<br><br><br><br><br><br>
+					<u><b>
+							<?php echo $det_raport['nama_kepsek']??"--"; ?>
+						</b></u><br>
+					Primary Principal
+					<br>
+				</td>
+				<td style="width:233px;text-align: center;">
 
-			</td>
-			<td></td>
-			<td style="text-align: center;">
-				<?php
+				</td>
+				<td></td>
+				<td style="text-align: center;">
+					<?php
 				if ($wali_kelas['tingkat'] != 9) {
 					?>
 					<?php echo $this->config->item('kota'); ?>,
 					<?php echo isset($det_raport['tgl_raport'])? tjs($det_raport['tgl_raport'], "l"):""; ?><br>
-				<?php } else { ?>
+					<?php } else { ?>
 					<?php echo $this->config->item('kota'); ?>,
 					<?php echo tjs($det_raport['tgl_raport_kelas3'], "l"); ?><br>
-				<?php } ?>
-				<br><br><br><br><br>
-				<u><b>
-						<?php echo $wali_kelas['nmguru']??"--"; ?><br>
-					</b></u>Homeroom Teacher<br>
-			</td>
-		</tr>
-	</table>
-</page>
+					<?php } ?>
+					<br><br><br><br><br>
+					<u><b>
+							<?php echo $wali_kelas['nmguru']??"--"; ?><br>
+						</b></u>Homeroom Teacher<br>
+				</td>
+			</tr>
+		</table>
+	</page>

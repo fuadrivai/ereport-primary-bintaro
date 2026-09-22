@@ -113,9 +113,11 @@
         <tr>
             <td colspan="9" style="width: 675px;">
                 <p>
-                <h5 class="font_kecil" style="text-align: center;"><img src="https://report.mhis.link/images/hanya-logo.png"
-                        width="80"><br>MUTIARA HARAPAN ISLAMIC SCHOOL<br>PRIMARY LEVEL<br><?php if ($semester == 1) {; ?>FIRST<?php } else { ?>SECOND<?php } ?> SEMESTER</h5>
-                <hr class="s5">
+                    <h5 class="font_kecil" style="text-align: center;"><img
+                            src="https://report.mhis.link/images/hanya-logo.png" width="80"><br>MUTIARA HARAPAN ISLAMIC
+                        SCHOOL<br>PRIMARY LEVEL<br><?php if ($semester == 1) {; ?>FIRST<?php } else { ?>SECOND<?php } ?>
+                        SEMESTER</h5>
+                    <hr class="s5">
                 </p>
 
             </td>
@@ -176,7 +178,7 @@
         <tr>
             <td colspan="9" style="width:700px;">
                 <p>
-                <h3 style="text-align: center;">LAPORAN HASIL BELAJAR</h3>
+                    <h3 style="text-align: center;">LAPORAN HASIL BELAJAR</h3>
                 </p>
             </td>
         </tr>
@@ -185,16 +187,14 @@
     <table>
         <tr>
             <td colspan="9">
-                <?php $is4 = $tingkat == 0 ?>
+                <?php $is4 = $tingkat != 0 ?>
                 <table class="table">
                     <thead>
                         <tr>
                             <th style="padding: 15px 10px;">No</th>
                             <th style="padding: 15px 10px;" colspan="2">Mata Pelajaran</th>
                             <th style="padding: 15px 10px;" colspan="2">Nilai Akhir</th>
-                            <?php if ($is4) { ?>
-                                <th style="padding: 15px 10px;" colspan="2">UTS</th>
-                            <?php } ?>
+                            <th style="padding: 15px 10px;" colspan="2">UTS</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -211,31 +211,33 @@
                         $kelompokB = array_values($filterB);
                         ?>
                         <?php foreach ($kelompokB as $kelB) { ?>
-                            <tr>
-                                <td class="ctr"><?= $no ?></td>
-                                <td style="width:295px;" colspan="2"><?= $kelB['mapel'] ?></td>
-                                <?php if ($is4) { ?>
-                                    <td colspan="2" class="ctr" style="width:80px;padding:10px;"><?= $kelB['nilai_pengetahuan'] ?></td>
-                                    <?php $hide =  $kelB['kd_singkat'] == 'GP' || $kelB['kd_singkat'] == 'SBK' || $kelB['kd_singkat'] == 'DL' || $kelB['kd_singkat'] == 'PE' || $kelB['kd_singkat'] == 'Music' ?>
-                                    <?php if ($hide) { ?>
-                                        <td class="ctr" style="width:80px;padding:10px;" colspan="2">-</td>
-                                    <?php } else { ?>
-                                        <td class="ctr" style="width:80px;padding:10px;" colspan="2"><?= $kelB['nilai_uts'] ?></td>
-                                    <?php } ?>
-                                <?php } else { ?>
-                                    <td class="ctr" style="width:240px;padding:10px;" colspan="2"><?= $kelB['nilai_pengetahuan'] == 0 ? "-" : $kelB['nilai_pengetahuan'] ?></td>
-                                <?php } ?>
-                            </tr>
-                            <?php $no++; ?>
+                        <tr>
+                            <td class="ctr"><?= $no ?></td>
+                            <td style="width:295px;" colspan="2"><?= $kelB['mapel'] ?></td>
+                            <?php if ($is4) { ?>
+                            <td colspan="2" class="ctr" style="width:80px;padding:10px;">
+                                <?= $kelB['nilai_pengetahuan'] ?></td>
+                            <?php $hide =  $kelB['kd_singkat'] == 'GP' || $kelB['kd_singkat'] == 'SBK' || $kelB['kd_singkat'] == 'DL' || $kelB['kd_singkat'] == 'PE' || $kelB['kd_singkat'] == 'Music' ?>
+                            <?php if ($hide) { ?>
+                            <td class="ctr" style="width:80px;padding:10px;" colspan="2">-</td>
+                            <?php } else { ?>
+                            <td class="ctr" style="width:80px;padding:10px;" colspan="2"><?= $kelB['nilai_uts'] ?></td>
+                            <?php } ?>
+                            <?php } else { ?>
+                            <td class="ctr" style="width:240px;padding:10px;" colspan="2">
+                                <?= $kelB['nilai_pengetahuan'] == 0 ? "-" : $kelB['nilai_pengetahuan'] ?></td>
+                            <?php } ?>
+                        </tr>
+                        <?php $no++; ?>
                         <?php } ?>
                         <tr>
                             <td class="ctr"></td>
                             <td style="width:295px;" colspan="2">Muatan Lokal</td>
                             <?php if ($is4) { ?>
-                                <td colspan="2" class="ctr" style="width:120px;padding:10px;"></td>
-                                <td colspan="2" class="ctr" style="width:120px;padding:10px;"></td>
+                            <td colspan="2" class="ctr" style="width:120px;padding:10px;"></td>
+                            <td colspan="2" class="ctr" style="width:120px;padding:10px;"></td>
                             <?php } else { ?>
-                                <td class="ctr" style="width:240px;padding:10px;" colspan="2"></td>
+                            <td class="ctr" style="width:240px;padding:10px;" colspan="2"></td>
                             <?php } ?>
                         </tr>
                         <?php
@@ -245,22 +247,24 @@
                         $kelompokMulok = array_values($filterMulok);
                         ?>
                         <?php foreach ($kelompokMulok as $mulok) { ?>
-                            <tr>
-                                <td class="ctr"><?= $no ?></td>
-                                <td style="width:295px;" colspan="2"><?= $mulok['mapel'] ?></td>
-                                <?php if ($is4) { ?>
-                                    <td colspan="2" class="ctr" style="width:80px;padding:10px;"><?= $mulok['nilai_pengetahuan'] ?></td>
-                                    <?php $hide =  $mulok['kd_singkat'] == 'GP' || $mulok['kd_singkat'] == 'SBK' || $mulok['kd_singkat'] == 'DL' || $mulok['kd_singkat'] == 'PE' || $mulok['kd_singkat'] == 'Music' ?>
-                                    <?php if ($hide) { ?>
-                                        <td class="ctr" style="width:80px;padding:10px;" colspan="2">-</td>
-                                    <?php } else { ?>
-                                        <td class="ctr" style="width:80px;padding:10px;" colspan="2"><?= $mulok['nilai_uts'] ?></td>
-                                    <?php } ?>
-                                <?php } else { ?>
-                                    <td class="ctr" style="width:240px;padding:10px;" colspan="2"><?= $mulok['nilai_pengetahuan'] == 0 ? "-" : $mulok['nilai_pengetahuan'] ?></td>
-                                <?php } ?>
-                            </tr>
-                            <?php $no++; ?>
+                        <tr>
+                            <td class="ctr"><?= $no ?></td>
+                            <td style="width:295px;" colspan="2"><?= $mulok['mapel'] ?></td>
+                            <?php if ($is4) { ?>
+                            <td colspan="2" class="ctr" style="width:80px;padding:10px;">
+                                <?= $mulok['nilai_pengetahuan'] ?></td>
+                            <?php $hide =  $mulok['kd_singkat'] == 'GP' || $mulok['kd_singkat'] == 'SBK' || $mulok['kd_singkat'] == 'DL' || $mulok['kd_singkat'] == 'PE' || $mulok['kd_singkat'] == 'Music' ?>
+                            <?php if ($hide) { ?>
+                            <td class="ctr" style="width:80px;padding:10px;" colspan="2">-</td>
+                            <?php } else { ?>
+                            <td class="ctr" style="width:80px;padding:10px;" colspan="2"><?= $mulok['nilai_uts'] ?></td>
+                            <?php } ?>
+                            <?php } else { ?>
+                            <td class="ctr" style="width:240px;padding:10px;" colspan="2">
+                                <?= $mulok['nilai_pengetahuan'] == 0 ? "-" : $mulok['nilai_pengetahuan'] ?></td>
+                            <?php } ?>
+                        </tr>
+                        <?php $no++; ?>
                         <?php } ?>
                     </tbody>
                 </table>
@@ -307,11 +311,11 @@
                     <?php
                     if ($tingkat != 9) {
                     ?>
-                        <?= $this->config->item('kota'); ?>,
-                        <?= isset($tgl_rapor) ? tjs($tgl_rapor, "l") : ""; ?><br>
+                    <?= $this->config->item('kota'); ?>,
+                    <?= isset($tgl_rapor) ? tjs($tgl_rapor, "l") : ""; ?><br>
                     <?php } else { ?>
-                        <?= $this->config->item('kota'); ?>,
-                        <?= tjs($det_raport['tgl_raport_kelas3'], "l"); ?><br>
+                    <?= $this->config->item('kota'); ?>,
+                    <?= tjs($det_raport['tgl_raport_kelas3'], "l"); ?><br>
                     <?php } ?>
                     <br><br><br><br><br>
                     <u><b>
