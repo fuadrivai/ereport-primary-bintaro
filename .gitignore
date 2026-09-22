@@ -1,0 +1,17 @@
+.env
+.env.backup
+.phpunit.result.cache
+docker-compose.override.yml
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+/.idea
+/.vscode
+
+/application/config/config.php
+/application/config/database.php
+/application/libraries/admission-school-visit-4134a09844b6.json
+/application/logs
+/vendor
+/upload/temp
