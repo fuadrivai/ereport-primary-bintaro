@@ -3545,41 +3545,46 @@ class Cetak_raport_pts extends CI_Controller
                                 a.*
                                 FROM t_catatan_nna a 
                                 WHERE a.id_siswa = $id_siswa AND a.ta = '$tasm'")->row_array();
+        $catatan_nna = $q_catatan_nna ?: ['catatan_mid' => '', 'catatan_final' => ''];
         $d['ta_catatan_nna'] .= '
-        <td style="font-family:freeserif; width:425px;padding: 10px 5px;">' . $q_catatan_nna['catatan_mid'] . '</td>
-        <td style="font-family:freeserif;width:425px;padding: 10px 5px;">' . $q_catatan_nna['catatan_final'] . '</td>';
+        <td style="font-family:freeserif; width:425px;padding: 10px 5px;">' . ($catatan_nna['catatan_mid'] ?? '') . '</td>
+        <td style="font-family:freeserif;width:425px;padding: 10px 5px;">' . ($catatan_nna['catatan_final'] ?? '') . '</td>';
 
         $q_catatan_sek = $this->db->query("SELECT 
                                 a.*
                                 FROM t_catatan_sek a 
                                 WHERE a.id_siswa = $id_siswa AND a.ta = '$tasm'")->row_array();
+        $catatan_sek = $q_catatan_sek ?: ['catatan_mid' => '', 'catatan_final' => ''];
         $d['ta_catatan_sek'] .= '
-        <td style="font-family:freeserif;width:425px;padding: 10px 5px;">' . $q_catatan_sek['catatan_mid'] . '</td>
-        <td style="font-family:freeserif;width:425px;padding: 10px 5px;">' . $q_catatan_sek['catatan_final'] . '</td>';
+        <td style="font-family:freeserif;width:425px;padding: 10px 5px;">' . ($catatan_sek['catatan_mid'] ?? '') . '</td>
+        <td style="font-family:freeserif;width:425px;padding: 10px 5px;">' . ($catatan_sek['catatan_final'] ?? '') . '</td>';
 
         $q_catatan_bi = $this->db->query("SELECT 
                                 a.*
                                 FROM t_catatan_bi a 
                                 WHERE a.id_siswa = $id_siswa AND a.ta = '$tasm'")->row_array();
+        $catatan_bi = $q_catatan_bi ?: ['catatan_mid' => '', 'catatan_final' => ''];
         $d['ta_catatan_bi'] .= '
-        <td style="font-family:freeserif;width:425px;padding: 10px 5px;">' . $q_catatan_bi['catatan_mid'] . '</td>
-        <td style="font-family:freeserif;width:425px;padding: 10px 5px;">' . $q_catatan_bi['catatan_final'] . '</td>';
+        <td style="font-family:freeserif;width:425px;padding: 10px 5px;">' . ($catatan_bi['catatan_mid'] ?? '') . '</td>
+        <td style="font-family:freeserif;width:425px;padding: 10px 5px;">' . ($catatan_bi['catatan_final'] ?? '') . '</td>';
 
         $q_catatan_kog = $this->db->query("SELECT 
                                 a.*
                                 FROM t_catatan_kog a 
                                 WHERE a.id_siswa = $id_siswa AND a.ta = '$tasm'")->row_array();
+        $catatan_kog = $q_catatan_kog ?: ['catatan_mid' => '', 'catatan_final' => ''];
         $d['ta_catatan_kog'] .= '
-        <td style="font-family:freeserif;width:425px;padding: 10px 5px;">' . $q_catatan_kog['catatan_mid'] . '</td>
-        <td style="font-family:freeserif;width:425px;padding: 10px 5px;">' . $q_catatan_kog['catatan_final'] . '</td>';
+        <td style="font-family:freeserif;width:425px;padding: 10px 5px;">' . ($catatan_kog['catatan_mid'] ?? '') . '</td>
+        <td style="font-family:freeserif;width:425px;padding: 10px 5px;">' . ($catatan_kog['catatan_final'] ?? '') . '</td>';
 
         $q_catatan_fimo = $this->db->query("SELECT 
                                 a.*
                                 FROM t_catatan_fimo a 
                                 WHERE a.id_siswa = $id_siswa AND a.ta = '$tasm'")->row_array();
+        $catatan_fimo = $q_catatan_fimo ?: ['catatan_mid' => '', 'catatan_final' => ''];
         $d['ta_catatan_fimo'] .= '
-        <td style="font-family:freeserif;width:425px;padding: 10px 5px;">' . $q_catatan_fimo['catatan_mid'] . '</td>
-        <td style="font-family:freeserif;width:425px;padding: 10px 5px;">' . $q_catatan_fimo['catatan_final'] . '</td>';
+        <td style="font-family:freeserif;width:425px;padding: 10px 5px;">' . ($catatan_fimo['catatan_mid'] ?? '') . '</td>
+        <td style="font-family:freeserif;width:425px;padding: 10px 5px;">' . ($catatan_fimo['catatan_final'] ?? '') . '</td>';
 
         $d['det_raport'] = $get_tasm = $this->db->query("SELECT tahun, nama_kepsek, nip_kepsek, tgl_raport, tgl_raport_kelas3 FROM tahun WHERE tahun = '$tasm'")->row_array();
 
@@ -3622,8 +3627,24 @@ class Cetak_raport_pts extends CI_Controller
                                                 INNER JOIN m_kelas c ON a.id_kelas = c.id
                                                 WHERE a.id_kelas = '" . $wali['id_walikelas'] . "' AND a.ta = '" . $this->d['ta'] . "'
                                                 ORDER BY b.nama ASC")->result_array();
+
+        if (empty($this->d['siswa_kelas'])) {
+            $this->d['jenis_rapor'] = 1;
+            $this->d['p'] = "list";
+            $this->load->view("template_utama", $this->d);
+            return;
+        }
+
         $tahun = $this->db->query("SELECT * FROM tahun WHERE tahun = '" . $this->d['tasm'] . "'")->row();
-        $jenis_rapor = getJenisRaport($tahun->id, $this->d['siswa_kelas'][0]['tingkat']);
+        $tingkat = $this->d['siswa_kelas'][0]['tingkat'] ?? null;
+        if (!$tahun || !$tingkat) {
+            $this->d['jenis_rapor'] = 1;
+            $this->d['p'] = "list";
+            $this->load->view("template_utama", $this->d);
+            return;
+        }
+
+        $jenis_rapor = getJenisRaport($tahun->id, $tingkat);
         $this->d['jenis_rapor'] = ($jenis_rapor->nama ?? "") == "K13" ? 2 : 1; // 1. kurmer, 2. k13
 
         foreach ($this->d['siswa_kelas'] as &$s) {
