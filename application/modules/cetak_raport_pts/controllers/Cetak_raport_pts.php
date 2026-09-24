@@ -4046,6 +4046,17 @@ class Cetak_raport_pts extends CI_Controller
             insert_icb_pss_la($id_siswa, $tasm, "t_nilai_la", $id, "mid");
             
             $d['details'] = $obj_nilai;
+            foreach ($d['details'] as &$detail) {
+                foreach (['nilai_uts', 'nilai_pengetahuan', 'nilai_keterampilan', 'nilai_catatan'] as $field) {
+                    if (isset($detail[$field])) {
+                        $value = trim((string) $detail[$field]);
+                        if ($value === '0' || $value === '0.00' || $value === '0,00' || (is_numeric($value) && (float) $value === 0.0)) {
+                            $detail[$field] = '-';
+                        }
+                    }
+                }
+            }
+            unset($detail);
             $d['characters'] = $this->db->query("SELECT * FROM t_raport_character WHERE id_rapor = $id")->result_array();
             
             $raporData = ["rapor" => $d];

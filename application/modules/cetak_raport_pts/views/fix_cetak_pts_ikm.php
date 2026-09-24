@@ -216,16 +216,20 @@
                             <td style="width:295px;" colspan="2"><?= $kelB['mapel'] ?></td>
                             <?php if ($is4) { ?>
                             <td colspan="2" class="ctr" style="width:80px;padding:10px;">
-                                <?= $kelB['nilai_pengetahuan'] ?></td>
+                                <?= ($kelB['nilai_pengetahuan'] == 0 || $kelB['nilai_pengetahuan'] === '0' || $kelB['nilai_pengetahuan'] === '0.00') ? "-" : $kelB['nilai_pengetahuan'] ?>
+                            </td>
                             <?php $hide =  $kelB['kd_singkat'] == 'GP' || $kelB['kd_singkat'] == 'SBK' || $kelB['kd_singkat'] == 'DL' || $kelB['kd_singkat'] == 'PE' || $kelB['kd_singkat'] == 'Music' ?>
                             <?php if ($hide) { ?>
                             <td class="ctr" style="width:80px;padding:10px;" colspan="2">-</td>
                             <?php } else { ?>
-                            <td class="ctr" style="width:80px;padding:10px;" colspan="2"><?= $kelB['nilai_uts'] ?></td>
+                            <td class="ctr" style="width:80px;padding:10px;" colspan="2">
+                                <?= ($kelB['nilai_uts'] == 0 || $kelB['nilai_uts'] === '0' || $kelB['nilai_uts'] === '0.00') ? "-" : $kelB['nilai_uts'] ?>
+                            </td>
                             <?php } ?>
                             <?php } else { ?>
                             <td class="ctr" style="width:240px;padding:10px;" colspan="2">
-                                <?= $kelB['nilai_pengetahuan'] == 0 ? "-" : $kelB['nilai_pengetahuan'] ?></td>
+                                <?= ($kelB['nilai_pengetahuan'] == 0 || $kelB['nilai_pengetahuan'] === '0' || $kelB['nilai_pengetahuan'] === '0.00') ? "-" : $kelB['nilai_pengetahuan'] ?>
+                            </td>
                             <?php } ?>
                         </tr>
                         <?php $no++; ?>
