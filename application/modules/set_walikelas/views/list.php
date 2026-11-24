@@ -15,9 +15,10 @@
 
                 <table class="table table-hover table-striped" id="datatabel" style="width: 100%">
                     <thead>
-                        <td width="10%">No</td>
+                        <td width="5%">No</td>
                         <td width="20%">Nama Kelas</td>
-                        <td width="50%">Nama Guru</td>
+                        <td width="35%">Nama Guru</td>
+                        <td width="20%">Username</td>
                         <td width="20%">Aksi</td>
                     </thead>
 

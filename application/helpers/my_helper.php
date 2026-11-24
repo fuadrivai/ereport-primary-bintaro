@@ -1330,3 +1330,8 @@ function get_live_ledger_scores_siswa($id_siswa, $tasm, $is_pts = false, $tingka
 		'nk' => $scores_k
 	];
 }
+
+function clean_text($text)
+{
+	return htmlspecialchars((string) $text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}

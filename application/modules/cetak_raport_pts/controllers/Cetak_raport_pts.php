@@ -3946,7 +3946,7 @@ class Cetak_raport_pts extends CI_Controller
         $kl1 = get_capaianKl1($id_siswa, $tasm);
         $kl2 = get_capaianKl2($id_siswa, $tasm);
         $catatan_ht = catatan_homeroom($id_siswa, $tasm);
-        $catatan_naik_kelas = catatan_naik_kelas($id_siswa, $tasm);
+        $catatan_naik_kelas = get_catatan_naik_kelas($id_siswa, $tasm);
 
         $d['det_raport'] = $this->db->query("SELECT * FROM tahun WHERE tahun = '$tasm'")->row();
         $jenis_rapor = getJenisRaport($d['det_raport']->id, $siswa->tingkat);

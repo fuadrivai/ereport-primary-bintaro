@@ -25,13 +25,19 @@ class Set_walikelas extends CI_Controller {
                                         WHERE a.tasm = '".$this->d['tasm']."'
                                         ORDER BY id ASC")->num_rows();
     
-        $q_datanya = $this->db->query("SELECT a.id, b.nama nmguru, c.nama nmkelas
+        $q_datanya = $this->db->query("SELECT a.id, b.nama nmguru, c.nama nmkelas,
+                                    (SELECT username FROM m_admin
+                                        WHERE level = 'guru' AND konid = b.id
+                                        LIMIT 1) AS username
                                     FROM t_walikelas a
                                     INNER JOIN m_guru b ON a.id_guru = b.id
                                     INNER JOIN m_kelas c ON a.id_kelas = c.id
                                     WHERE (a.tasm = '".$this->d['tasm']."') AND (
                                     b.nama LIKE '%".$search['value']."%'
-                                    OR c.nama LIKE '%".$search['value']."%')
+                                    OR c.nama LIKE '%".$search['value']."%'
+                                    OR EXISTS (SELECT 1 FROM m_admin
+                                        WHERE level = 'guru' AND konid = b.id
+                                        AND username LIKE '%".$search['value']."%'))
                                     ORDER BY a.id ASC
                                     LIMIT ".$start.", ".$length."")->result_array();
         $data = array();
@@ -42,8 +48,9 @@ class Set_walikelas extends CI_Controller {
             $data_ok[0] = $no++;
             $data_ok[1] = $d['nmkelas'];
             $data_ok[2] = $d['nmguru'];
+            $data_ok[3] = $d['username'];
 
-            $data_ok[3] = '<a href="#" onclick="return edit(\''.$d['id'].'\');" class="btn btn-xs btn-success"><i class="fa fa-edit"></i> Edit</a> 
+            $data_ok[4] = '<a href="#" onclick="return edit(\''.$d['id'].'\');" class="btn btn-xs btn-success"><i class="fa fa-edit"></i> Edit</a>
                 <a href="#" onclick="return hapus(\''.$d['id'].'\');" class="btn btn-xs btn-danger"><i class="fa fa-remove"></i> Hapus</a> ';
 
             $data[] = $data_ok;
