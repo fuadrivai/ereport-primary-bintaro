@@ -155,6 +155,13 @@ class Cetak_raport extends CI_Controller
                                     WHERE a.id_siswa = $id_siswa
                                     AND a.tasm = '" . $tasm . "'")->result_array();
 
+        $ambil_uts = $this->db->query("SELECT 
+                        c.id idmapel, c.kkm, c.lang, a.tasm, c.kd_singkat, a.jenis, a.catatan, a.nilai as nilai
+                        FROM t_nilai a
+                        INNER JOIN m_mapel c ON a.id_mapel_kd = c.id
+                        WHERE a.id_siswa = $id_siswa
+                        AND a.tasm = '" . $tasm . "'
+                        AND a.jenis IN ('t', 'a', 'p', 'b', 'c')")->result_array();
 
         $ambil_np_submp = $this->db->query("SELECT 
                                     b.id_mapel, c.kd_singkat
@@ -186,9 +193,33 @@ class Cetak_raport extends CI_Controller
                 $array1[$idx]['a'] = $a2['nilai'];
             } else if ($a2['jenis'] == "c") {
                 $array1[$idx]['c'] = $a2['catatan'];
+            } else if ($a2['jenis'] == "p") {
+                $array1[$idx]['p'] = $a2['nilai'];
+            } else if ($a2['jenis'] == "b") {
+                $array1[$idx]['b'] = $a2['nilai'];
+            } else if ($a2['jenis'] == "p") {
+                $array1[$idx]['p'] = $a2['nilai'];
+            } else if ($a2['jenis'] == "b") {
+                $array1[$idx]['b'] = $a2['nilai'];
             }
         }
-
+        foreach ($ambil_uts as $a2) {
+            $idx = $a2['idmapel'];
+            if ($a2['jenis'] == "h") {
+                $array1[$idx]['h'][] = $a2['nilai'];
+            } else if ($a2['jenis'] == "t") {
+                $array1[$idx]['t'] = $a2['nilai'];
+                $array1[$idx]['kd_singkat'] = $a2['kd_singkat'];
+            } else if ($a2['jenis'] == "a") {
+                $array1[$idx]['a'] = $a2['nilai'];
+            } else if ($a2['jenis'] == "c") {
+                $array1[$idx]['c'] = $a2['catatan'];
+            } else if ($a2['jenis'] == "p") {
+                $array1[$idx]['p'] = $a2['nilai'];
+            } else if ($a2['jenis'] == "b") {
+                $array1[$idx]['b'] = $a2['nilai'];
+            }
+        }
 
         $kkm = array_unique($array_kkm);
         $d['kkm'] = '';
@@ -254,10 +285,17 @@ class Cetak_raport extends CI_Controller
 
             $__tengah = empty($array1[$k]['t']) ? 0 : $array1[$k]['t'];
             $__akhir = empty($array1[$k]['a']) ? 0 : $array1[$k]['a'];
+            $__perf = empty($array1[$k]['p']) ? 0 : $array1[$k]['p'];
+            $__buzz = empty($array1[$k]['b']) ? 0 : $array1[$k]['b'];
 
-            $_np = round(((($bobot_h / $jml_bobot) * ($jumlah_n_h / $jumlah_h)) +
-                (($bobot_t / $jml_bobot) * $__tengah) +
-                (($bobot_a / $jml_bobot) * $__akhir)), 0);
+            $components_np = [
+                'h' => $array1[$k]['h'] ?? [],
+                'b' => $__buzz,
+                't' => $__tengah,
+                'a' => $__akhir,
+                'p' => $__perf,
+            ];
+            $_np = hitung_nilai_sop($components_np, $k, (int)$d['semester'], false, $siswa['tingkat'] ?? null);
 
             $nilai_pengetahuan[$k]['nilai'] = number_format($_np);
             $nilai_pengetahuan[$k]['predikat'] = nilai_huruf($kkmx, $_np);
@@ -280,7 +318,14 @@ class Cetak_raport extends CI_Controller
                                     INNER JOIN m_mapel c ON b.id_mapel = c.id
                                     INNER JOIN t_mapel_kd d ON a.id_mapel_kd = d.id
                                     WHERE a.id_siswa = $id_siswa
-                                    AND a.tasm = '" . $tasm . "'")->result_array();
+                                    AND a.tasm = '" . $tasm . "' AND a.nilai != 0")->result_array();
+        $ambil_nkuts = $this->db->query("SELECT 
+                        c.id idmapel, c.kkm, c.lang, a.tasm, c.kd_singkat, a.jenis, a.catatan, a.nilai as nilai
+                        FROM t_nilai_ket a
+                        INNER JOIN m_mapel c ON a.id_mapel_kd = c.id
+                        WHERE a.id_siswa = $id_siswa
+                        AND a.tasm = '" . $tasm . "'
+                        AND a.jenis IN ('t', 'a', 'p', 'b', 'c')")->result_array();
 
         //echo var_dump($ambil_nk);
         //ambil id mapel, kode singkat
@@ -308,10 +353,29 @@ class Cetak_raport extends CI_Controller
                 $array2[$idx]['h'][] = $a22['nilai'];
             } else if ($a22['jenis'] == "p") {
                 $array2[$idx]['p'] = $a22['nilai'];
+            } else if ($a22['jenis'] == "b") {
+                $array2[$idx]['b'] = $a22['nilai'];
             } else if ($a22['jenis'] == "t") {
                 $array2[$idx]['t'] = $a22['nilai'];
             } else if ($a22['jenis'] == "a") {
                 $array2[$idx]['a'] = $a22['nilai'];
+            }
+        }
+        foreach ($ambil_nkuts as $a22) {
+            $idx = $a22['idmapel'];
+            //$pc_nilai = explode("//", $a2['nilai']);
+            if ($a22['jenis'] == "h") {
+                $array2[$idx]['h'][] = $a22['nilai'];
+            } else if ($a22['jenis'] == "p") {
+                $array2[$idx]['p'] = $a22['nilai'];
+            } else if ($a22['jenis'] == "b") {
+                $array2[$idx]['b'] = $a22['nilai'];
+            } else if ($a22['jenis'] == "t") {
+                $array2[$idx]['t'] = $a22['nilai'];
+            } else if ($a22['jenis'] == "a") {
+                $array2[$idx]['a'] = $a22['nilai'];
+            } else if ($a22['jenis'] == "c") {
+                $array2[$idx]['c'] = $a22['catatan'];
             }
         }
 
@@ -360,13 +424,11 @@ class Cetak_raport extends CI_Controller
             foreach ($desk as $r => $s) {
                 $txt_desk[] = $r . " " . implode(", ", $s);
             }
-            $__tengah = empty($array2[$k]['t']) ? 0 : $array2[$k]['t'];
-            $__akhir = empty($array2[$k]['a']) ? 0 : $array2[$k]['a'];
             $__praktik = empty($array2[$k]['p']) ? 0 : $array2[$k]['p'];
-            $_nilai_keterampilan = round(((($bobot_h / $jml_bobot) * ($jumlah_nilai / $jumlah_array_nilai)) +
-                (($bobot_t / $jml_bobot) * $__tengah) +
-                (($bobot_a / $jml_bobot) * $__akhir) +
-                (($bobot_p / $jml_bobot) * $__praktik)), 0);
+            $_nilai_keterampilan = hitung_nilai_keterampilan_sop([
+                'h' => $array2[$k]['h'] ?? [],
+                'p' => $__praktik
+            ], $k);
 
             $nilai_keterampilan[$k]['nilai'] = number_format($_nilai_keterampilan);
             $nilai_keterampilan[$k]['predikat'] = nilai_huruf($kkmx, $_nilai_keterampilan);
@@ -937,16 +999,9 @@ class Cetak_raport extends CI_Controller
                         c.id idmapel, c.kkm, c.lang, a.tasm, c.kd_singkat, a.jenis, a.catatan, a.nilai as nilai
                         FROM t_nilai a
                         INNER JOIN m_mapel c ON a.id_mapel_kd = c.id
-                        WHERE 
-                        a.jenis= 't'
-                        AND a.id_siswa = $id_siswa
+                        WHERE a.id_siswa = $id_siswa
                         AND a.tasm = '" . $tasm . "'
-                        OR a.jenis= 'a'
-                        AND a.id_siswa = $id_siswa
-                        AND a.tasm = '" . $tasm . "'
-                        OR a.jenis= 'c'
-                        AND a.id_siswa = $id_siswa
-                        AND a.tasm = '" . $tasm . "'
+                        AND a.jenis IN ('t', 'a', 'p', 'b', 'c')
         ")->result_array();
         $ambil_np_submp = $this->db->query("SELECT 
                                     b.id_mapel, c.kd_singkat
@@ -978,6 +1033,14 @@ class Cetak_raport extends CI_Controller
                 $array1[$idx]['a'] = $a2['nilai'];
             } else if ($a2['jenis'] == "c") {
                 $array1[$idx]['c'] = $a2['catatan'];
+            } else if ($a2['jenis'] == "p") {
+                $array1[$idx]['p'] = $a2['nilai'];
+            } else if ($a2['jenis'] == "b") {
+                $array1[$idx]['b'] = $a2['nilai'];
+            } else if ($a2['jenis'] == "p") {
+                $array1[$idx]['p'] = $a2['nilai'];
+            } else if ($a2['jenis'] == "b") {
+                $array1[$idx]['b'] = $a2['nilai'];
             }
         }
         foreach ($ambil_uts as $a2) {
@@ -995,6 +1058,10 @@ class Cetak_raport extends CI_Controller
                 $array1[$idx]['a'] = $a2['nilai'];
             } else if ($a2['jenis'] == "c") {
                 $array1[$idx]['c'] = $a2['catatan'];
+            } else if ($a2['jenis'] == "p") {
+                $array1[$idx]['p'] = $a2['nilai'];
+            } else if ($a2['jenis'] == "b") {
+                $array1[$idx]['b'] = $a2['nilai'];
             }
         }
 
@@ -1062,12 +1129,17 @@ class Cetak_raport extends CI_Controller
 
             $__tengah = empty($array1[$k]['t']) ? 0 : $array1[$k]['t'];
             $__akhir = empty($array1[$k]['a']) ? 0 : $array1[$k]['a'];
+            $__perf = empty($array1[$k]['p']) ? 0 : $array1[$k]['p'];
+            $__buzz = empty($array1[$k]['b']) ? 0 : $array1[$k]['b'];
 
-            if ($tingkat == 1 || $tingkat == 2) {
-                $_np = round(($jumlah_n_h / $jumlah_h), 0);
-            } else {
-                $_np = round((((2 * ($jumlah_n_h / $jumlah_h)) + $__tengah + $__akhir) / 4), 0);
-            }
+            $components_np = [
+                'h' => $array1[$k]['h'] ?? [],
+                'b' => $__buzz,
+                't' => $__tengah,
+                'a' => $__akhir,
+                'p' => $__perf,
+            ];
+            $_np = hitung_nilai_sop($components_np, $k, (int)$d['semester'], false, $tingkat);
 
             $nilai_pengetahuan[$k]['nilai'] = number_format($_np);
             $nilai_pengetahuan[$k]['predikat'] = nilai_huruf($kkmx, $_np);
@@ -1095,22 +1167,9 @@ class Cetak_raport extends CI_Controller
                                 c.id idmapel, c.kkm, c.lang, a.tasm, c.kd_singkat, a.jenis, a.catatan, a.nilai as nilai
                                 FROM t_nilai_ket a
                                 INNER JOIN m_mapel c ON a.id_mapel_kd = c.id
-                                WHERE 
-                                a.jenis= 't'
-                                AND a.id_siswa = $id_siswa
+                                WHERE a.id_siswa = $id_siswa
                                 AND a.tasm = '" . $tasm . "'
-                                OR
-                                a.jenis= 'a'
-                                AND a.id_siswa = $id_siswa
-                                AND a.tasm = '" . $tasm . "'
-                                OR
-                                a.jenis= 'c'
-                                AND a.id_siswa = $id_siswa
-                                AND a.tasm = '" . $tasm . "'
-                                OR
-                                a.jenis= 'p'
-                                AND a.id_siswa = $id_siswa
-                                AND a.tasm = '" . $tasm . "'
+                                AND a.jenis IN ('t', 'a', 'p', 'b', 'c')
                                 ")->result_array();
         //echo var_dump($ambil_nk);
         //ambil id mapel, kode singkat
@@ -1138,6 +1197,8 @@ class Cetak_raport extends CI_Controller
                 $array2[$idx]['h'][] = $a22['nilai'];
             } else if ($a22['jenis'] == "p") {
                 $array2[$idx]['p'] = $a22['nilai'];
+            } else if ($a22['jenis'] == "b") {
+                $array2[$idx]['b'] = $a22['nilai'];
             } else if ($a22['jenis'] == "t") {
                 $array2[$idx]['t'] = $a22['nilai'];
             } else if ($a22['jenis'] == "a") {
@@ -1151,6 +1212,8 @@ class Cetak_raport extends CI_Controller
                 $array2[$idx]['h'][] = $a22['nilai'];
             } else if ($a22['jenis'] == "p") {
                 $array2[$idx]['p'] = $a22['nilai'];
+            } else if ($a22['jenis'] == "b") {
+                $array2[$idx]['b'] = $a22['nilai'];
             } else if ($a22['jenis'] == "t") {
                 $array2[$idx]['t'] = $a22['nilai'];
             } else if ($a22['jenis'] == "a") {
@@ -1204,15 +1267,11 @@ class Cetak_raport extends CI_Controller
             foreach ($desk as $r => $s) {
                 $txt_desk[] = $r . " " . implode(", ", $s);
             }
-            $__tengah = empty($array2[$k]['t']) ? 0 : $array2[$k]['t'];
-            $__akhir = empty($array2[$k]['a']) ? 0 : $array2[$k]['a'];
             $__praktik = empty($array2[$k]['p']) ? 0 : $array2[$k]['p'];
-            if ($tingkat == 1 || $tingkat == 2) {
-                $_nilai_keterampilan = round(($jumlah_nilai / $jumlah_array_nilai), 0);
-            } else {
-                $jumlah_array_nilai += 1;
-                $_nilai_keterampilan = round((((2 * (($__praktik + $jumlah_nilai) / $jumlah_array_nilai)) + $__tengah + $__akhir) / 4), 0);
-            }
+            $_nilai_keterampilan = hitung_nilai_keterampilan_sop([
+                'h' => $array2[$k]['h'] ?? [],
+                'p' => $__praktik
+            ], $k);
 
             $nilai_keterampilan[$k]['nilai'] = number_format($_nilai_keterampilan);
             $nilai_keterampilan[$k]['predikat'] = nilai_huruf($kkmx, $_nilai_keterampilan);
@@ -2100,6 +2159,10 @@ class Cetak_raport extends CI_Controller
                 $array1[$idx]['a'] = $a2['nilai'];
             } else if ($a2['jenis'] == "c") {
                 $array1[$idx]['c'] = $a2['catatan'];
+            } else if ($a2['jenis'] == "p") {
+                $array1[$idx]['p'] = $a2['nilai'];
+            } else if ($a2['jenis'] == "b") {
+                $array1[$idx]['b'] = $a2['nilai'];
             }
         }
 
@@ -2169,10 +2232,17 @@ class Cetak_raport extends CI_Controller
 
             $__tengah = empty($array1[$k]['t']) ? 0 : $array1[$k]['t'];
             $__akhir = empty($array1[$k]['a']) ? 0 : $array1[$k]['a'];
+            $__perf = empty($array1[$k]['p']) ? 0 : $array1[$k]['p'];
+            $__buzz = empty($array1[$k]['b']) ? 0 : $array1[$k]['b'];
 
-            $_np = round(((($bobot_h / $jml_bobot) * ($jumlah_n_h / $jumlah_h)) +
-                (($bobot_t / $jml_bobot) * $__tengah) +
-                (($bobot_a / $jml_bobot) * $__akhir)), 0);
+            $components_np = [
+                'h' => $array1[$k]['h'] ?? [],
+                'b' => $__buzz,
+                't' => $__tengah,
+                'a' => $__akhir,
+                'p' => $__perf,
+            ];
+            $_np = hitung_nilai_sop($components_np, $k, (int)$d['semester'], false, $siswa['tingkat'] ?? null);
 
             $nilai_pengetahuan[$k]['nilai'] = number_format($_np);
             $nilai_pengetahuan[$k]['predikat'] = nilai_huruf($kkmx, $_np);
@@ -2347,14 +2417,12 @@ class Cetak_raport extends CI_Controller
             foreach ($desk as $r => $s) {
                 $txt_desk[] = $r . " " . implode(", ", $s);
             }
-            $__tengah = empty($array2[$k]['t']) ? 0 : $array2[$k]['t'];
-            $__akhir = empty($array2[$k]['a']) ? 0 : $array2[$k]['a'];
             $__praktik = empty($array2[$k]['p']) ? 0 : $array2[$k]['p'];
             $nilai_keterampilan[$k]['catatan'] = empty($array2[$k]['c']) ? '-' : $array2[$k]['c'];
-            $_nilai_keterampilan = round(((($bobot_h / $jml_bobot) * ($jumlah_nilai / $jumlah_array_nilai)) +
-                (($bobot_t / $jml_bobot) * $__tengah) +
-                (($bobot_a / $jml_bobot) * $__akhir) +
-                (($bobot_p / $jml_bobot) * $__praktik)), 0);
+            $_nilai_keterampilan = hitung_nilai_keterampilan_sop([
+                'h' => $array2[$k]['h'] ?? [],
+                'p' => $__praktik
+            ], $k);
 
             $nilai_keterampilan[$k]['nilai'] = number_format($_nilai_keterampilan);
             $nilai_keterampilan[$k]['predikat'] = nilai_huruf($kkmx, $_nilai_keterampilan);
@@ -3104,12 +3172,29 @@ class Cetak_raport extends CI_Controller
     
     function hitung_nilai_pengetahuan($table, $id_siswa, $tasm, $siswa)
     {
+        $tahun_num = substr($tasm, 0, 4);
+        $sem_aktif = (int)substr($tasm, 4, 1);
+        if (is_object($siswa)) {
+            $tingkat_siswa = $siswa->tingkat ?? null;
+            $id_kelas = $siswa->id_kelas ?? null;
+        } else if (is_numeric($siswa)) {
+            $id_kelas = $siswa;
+            $s_obj = siswa($id_siswa, $tahun_num);
+            $tingkat_siswa = $s_obj->tingkat ?? null;
+        } else {
+            $s_obj = siswa($id_siswa, $tahun_num);
+            $tingkat_siswa = $s_obj->tingkat ?? null;
+            $id_kelas = $s_obj->id_kelas ?? null;
+        }
+
         $ambil_np = get_nilai_utama($table, $id_siswa, $tasm);
         $array1 = $this->mapping_nilai($table, $id_siswa, $tasm);
         $nilai_pengetahuan = [];
+        $kkmx = 75;
+        $lang_mapel = 'eng';
         foreach ($ambil_np as $a2) {
-            $kkmx = $a2['kkm'];
-            $lang_mapel = $a2['lang'];
+            $kkmx = $a2['subject_kkm'] ?? $a2['kkm'] ?? 75;
+            $lang_mapel = $a2['lang'] ?? 'eng';
         }
         foreach ($array1 as $k) {
 
@@ -3154,37 +3239,43 @@ class Cetak_raport extends CI_Controller
 
             $__tengah = empty($k['t']) ? 0 : $k['t'];
             $__akhir = empty($k['a']) ? 0 : $k['a'];
+            $__perf = empty($k['p']) ? 0 : $k['p'];
+            $__buzz = empty($k['b']) ? 0 : $k['b'];
 
-            if ($siswa->tingkat == 1 || $siswa->tingkat == 2) {
-                $_np = round(($jumlah_n_h / $jumlah_h), 0);
-            } else {
-                $_np = round((((2 * ($jumlah_n_h / $jumlah_h)) + $__tengah + $__akhir) / 4), 0);
-            }
+            $components_np = [
+                'h' => $k['h'] ?? [],
+                'b' => $__buzz,
+                't' => $__tengah,
+                'a' => $__akhir,
+                'p' => $__perf,
+            ];
+            $_np = hitung_nilai_sop($components_np, $k['id_mapel'], $sem_aktif, false, $tingkat_siswa);
 
-            $guru_mapel = get_guru_mapel($k['id_mapel'], $siswa->id_kelas, $tasm);
+            $guru_mapel = get_guru_mapel($k['id_mapel'], $id_kelas, $tasm);
+            $kkm_val = $k['kkm'] ?? $kkmx;
             $pengetahuan = [
                 'id_mapel' => $k['id_mapel'],
-                'nama_guru' => $guru_mapel->namaguru,
+                'nama_guru' => $guru_mapel->namaguru ?? '',
                 'mapel' => $k['mapel'],
                 'mapel_diknas' => $k['mapel_diknas'],
                 'kelompok' => $k['kelompok'],
                 'kd_singkat' => $k['kd_singkat'],
                 'nilai' => number_format($_np),
-                'predikat' => nilai_huruf($kkmx, $_np),
-                'kkm' => $kkmx,
+                'predikat' => nilai_huruf($kkm_val, $_np),
+                'kkm' => $kkm_val,
                 "tipe" => 1, // 1. Pengetahuan 2. Keterampilan
 
             ];
 
-            $nilai = get_catatan_primary($id_siswa, $tasm, $guru_mapel->id_guru_mapel);
-            if ($nilai->catatan == "") {
+            $nilai = function_exists('get_catatan_primary') ? get_catatan_primary($id_siswa, $tasm, $guru_mapel->id_guru_mapel ?? null) : null;
+            if (!empty($nilai) && isset($nilai->catatan) && $nilai->catatan != "") {
+                $pengetahuan['desk'] =  $nilai->catatan;
+            } else {
                 if ($lang_mapel == 'eng') {
                     $pengetahuan['desk'] =  empty($k['c']) ? 'You did ' . str_replace('; ', '. ', implode("; ", $txt_desk)) : $k['c'];
                 } else {
                     $pengetahuan['desk'] =  empty($k['c']) ? 'Kamu telah ' . str_replace('; ', '. ', implode("; ", $txt_desk)) : $k['c'];
                 }
-            } else {
-                $pengetahuan['desk'] =  $nilai->catatan;
             }
 
             $nilai_pengetahuan[] = $pengetahuan;
@@ -3219,9 +3310,14 @@ class Cetak_raport extends CI_Controller
                         $data_nilai['t'] = $a2['nilai'];
                     } else if ($a2['jenis'] == "c") {
                         $data_nilai['c'] = $a2['catatan'];
+                    } else if ($a2['jenis'] == "p") {
+                        $data_nilai['p'] = $a2['nilai'];
+                    } else if ($a2['jenis'] == "b") {
+                        $data_nilai['b'] = $a2['nilai'];
                     } else if ($a2['jenis'] == "h") {
                         $data_nilai['h'][] = $a2['nilai'];
                     }
+                    $data_nilai['kkm'] = $a2['subject_kkm'] ?? $a2['kkm'] ?? 75;
                 }
             }
             foreach ($ambil_uts as $a2) {
@@ -3233,9 +3329,14 @@ class Cetak_raport extends CI_Controller
                         $data_nilai['t'] = $a2['nilai'];
                     } else if ($a2['jenis'] == "c") {
                         $data_nilai['c'] = $a2['catatan'];
+                    } else if ($a2['jenis'] == "p") {
+                        $data_nilai['p'] = $a2['nilai'];
+                    } else if ($a2['jenis'] == "b") {
+                        $data_nilai['b'] = $a2['nilai'];
                     } else if ($a2['jenis'] == "h") {
                         $data_nilai['h'][] = $a2['nilai'];
                     }
+                    $data_nilai['kkm'] = $a2['subject_kkm'] ?? $a2['kkm'] ?? 75;
                 }
             }
             $array1[] = $data_nilai;
@@ -3245,10 +3346,22 @@ class Cetak_raport extends CI_Controller
 
     function hitung_nilai_keterampilan($table, $id_siswa, $tasm, $siswa)
     {
+        $tahun_num = substr($tasm, 0, 4);
+        if (is_object($siswa)) {
+            $id_kelas = $siswa->id_kelas ?? null;
+        } else if (is_numeric($siswa)) {
+            $id_kelas = $siswa;
+        } else {
+            $s_obj = siswa($id_siswa, $tahun_num);
+            $id_kelas = $s_obj->id_kelas ?? null;
+        }
+
         $ambil_np = get_nilai_utama('t_nilai_ket', $id_siswa, $tasm);
+        $kkmx = 75;
+        $lang_mapel = 'eng';
         foreach ($ambil_np as $a2) {
-            $kkmx = $a2['kkm'];
-            $lang_mapel = $a2['lang'];
+            $kkmx = $a2['subject_kkm'] ?? $a2['kkm'] ?? 75;
+            $lang_mapel = $a2['lang'] ?? 'eng';
         }
         $array2 = $this->mapping_nilai_keterampilan($table, $id_siswa, $tasm);
         $nilai_keterampilan = array();
@@ -3286,38 +3399,35 @@ class Cetak_raport extends CI_Controller
             foreach ($desk as $r => $s) {
                 $txt_desk[] = $r . " " . implode(", ", $s);
             }
-            $__tengah = empty($k['t']) ? 0 : $k['t'];
-            $__akhir = empty($k['a']) ? 0 : $k['a'];
             $__praktik = empty($k['p']) ? 0 : $k['p'];
-            // $jumlah_array_nilai += 1;
 
-            if ($siswa->tingkat == 1 || $siswa->tingkat == 2) {
-                $_nilai_keterampilan = round(($jumlah_nilai / $jumlah_array_nilai), 0);
-            } else {
-                $jumlah_array_nilai += 1;
-                $_nilai_keterampilan = round((((2 * (($__praktik + $jumlah_nilai) / $jumlah_array_nilai)) + $__tengah + $__akhir) / 4), 0);
-            }
-            $guru_mapel = get_guru_mapel($k['id_mapel'], $siswa->id_kelas, $tasm);
+            $_nilai_keterampilan = hitung_nilai_keterampilan_sop([
+                'h' => $k['h'] ?? [],
+                'p' => $__praktik
+            ], $k['id_mapel']);
+
+            $guru_mapel = get_guru_mapel($k['id_mapel'], $id_kelas, $tasm);
+            $kkm_val = $k['kkm'] ?? $kkmx;
             $keterampilan = [
                 'id_mapel' => $k['id_mapel'],
-                'nama_guru' => $guru_mapel->namaguru,
+                'nama_guru' => $guru_mapel->namaguru ?? '',
                 'mapel' => $k['mapel'],
                 'mapel_diknas' => $k['mapel_diknas'],
                 'kd_singkat' => $k['kd_singkat'],
                 'nilai' => number_format($_nilai_keterampilan),
-                'kkm' => $kkmx,
-                'predikat' => nilai_huruf($kkmx, $_nilai_keterampilan),
+                'kkm' => $kkm_val,
+                'predikat' => nilai_huruf($kkm_val, $_nilai_keterampilan),
                 "tipe" => 2, // 1. pengetauan 2. keterampilan
             ];
-            $nilai = get_catatan_keterampilan_primary($id_siswa, $tasm, $guru_mapel->id_guru_mapel);
-            if ($nilai->catatan == "") {
+            $nilai = function_exists('get_catatan_keterampilan_primary') ? get_catatan_keterampilan_primary($id_siswa, $tasm, $guru_mapel->id_guru_mapel ?? null) : null;
+            if (!empty($nilai) && isset($nilai->catatan) && $nilai->catatan != "") {
+                $keterampilan['desk'] =  $nilai->catatan;
+            } else {
                 if ($lang_mapel == 'eng') {
                     $keterampilan['desk'] = empty($k['c']) ? 'You did ' . str_replace('; ', '. ', implode("; ", $txt_desk)) : $k['c'];
                 } else {
                     $keterampilan['desk'] = empty($k['c']) ? 'Kamu telah ' . str_replace('; ', '. ', implode("; ", $txt_desk)) : $k['c'];
                 }
-            } else {
-                $keterampilan['desk'] =  $nilai->catatan;
             }
             $nilai_keterampilan[] = $keterampilan;
         }
@@ -3352,9 +3462,12 @@ class Cetak_raport extends CI_Controller
                         $data_nilai['c'] = $a2['catatan'];
                     } else if ($a2['jenis'] == "p") {
                         $data_nilai['p'] = $a2['nilai'];
+                    } else if ($a2['jenis'] == "b") {
+                        $data_nilai['b'] = $a2['nilai'];
                     } else if ($a2['jenis'] == "h") {
                         $data_nilai['h'][] = $a2['nilai'];
                     }
+                    $data_nilai['kkm'] = $a2['subject_kkm'] ?? $a2['kkm'] ?? 75;
                 }
             }
             foreach ($ambil_uts as $a2) {
@@ -3368,9 +3481,12 @@ class Cetak_raport extends CI_Controller
                         $data_nilai['c'] = $a2['catatan'];
                     } else if ($a2['jenis'] == "p") {
                         $data_nilai['p'] = $a2['nilai'];
+                    } else if ($a2['jenis'] == "b") {
+                        $data_nilai['b'] = $a2['nilai'];
                     } else if ($a2['jenis'] == "h") {
                         $data_nilai['h'][] = $a2['nilai'];
                     }
+                    $data_nilai['kkm'] = $a2['subject_kkm'] ?? $a2['kkm'] ?? 75;
                 }
             }
             $array1[] = $data_nilai;

@@ -30,6 +30,17 @@ class Data_mapel extends CI_Controller {
             $data_ok[] = $d['kelompok'];
             $data_ok[] = $d['kd_singkat'];
             $data_ok[] = $d['nama'];
+
+            $kat = !empty($d['kategori_penilaian']) ? $d['kategori_penilaian'] : 'without_performance';
+            if ($kat == 'without_written') {
+                $kat_badge = '<span class="label label-warning" style="font-size:11px;">Without Written</span>';
+            } elseif ($kat == 'with_performance') {
+                $kat_badge = '<span class="label label-info" style="font-size:11px;">With Performance</span>';
+            } else {
+                $kat_badge = '<span class="label label-primary" style="font-size:11px;">Without Performance</span>';
+            }
+            $data_ok[] = $kat_badge;
+
             $data_ok[] = $d['kkm'];
             $data_ok[] = $d['lang'] == 'id' ? 'Indonesia' : 'English';
             //$data_ok[3] = ($d['is_sikap'] == "0") ? '<i class="fa fa-minus-circle"></i>' : '<i class="fa fa-check-circle"></i>';
@@ -62,6 +73,7 @@ class Data_mapel extends CI_Controller {
             $d['data']['nama'] = "";
             $d['data']['kkm'] = "";
             $d['data']['lang'] = "";
+            $d['data']['kategori_penilaian'] = "without_performance";
         } else {
             $d['data'] = $q;
         }
@@ -75,14 +87,16 @@ class Data_mapel extends CI_Controller {
         $d['status'] = "";
         $d['data'] = "";
 
+        $kategori_penilaian = !empty($p['kategori_penilaian']) ? $p['kategori_penilaian'] : 'without_performance';
+
         if ($p['_mode'] == "add") {
 
-            $this->db->query("INSERT INTO m_mapel (kelompok,tambahan_sub,nama,kd_singkat,kkm, lang) VALUES ('".$p['kelompok']."','".$p['tambahan_sub']."','".$p['nama']."', '".$p['kd_singkat']."','".$p['kkm']."','".$p['lang']."')");
+            $this->db->query("INSERT INTO m_mapel (kelompok,tambahan_sub,nama,kd_singkat,kkm, lang, kategori_penilaian) VALUES ('".$p['kelompok']."','".$p['tambahan_sub']."','".$p['nama']."', '".$p['kd_singkat']."','".$p['kkm']."','".$p['lang']."', '".$kategori_penilaian."')");
 
             $d['status'] = "ok";
             $d['data'] = "Data berhasil disimpan";
         } else if ($p['_mode'] == "edit") {
-            $this->db->query("UPDATE m_mapel SET kelompok = '".$p['kelompok']."',tambahan_sub='".$p['tambahan_sub']."', kd_singkat = '".$p['kd_singkat']."', nama = '".$p['nama']."', kkm = '".$p['kkm']."', lang = '".$p['lang']."' WHERE id = '".$p['_id']."'");
+            $this->db->query("UPDATE m_mapel SET kelompok = '".$p['kelompok']."',tambahan_sub='".$p['tambahan_sub']."', kd_singkat = '".$p['kd_singkat']."', nama = '".$p['nama']."', kkm = '".$p['kkm']."', lang = '".$p['lang']."', kategori_penilaian = '".$kategori_penilaian."' WHERE id = '".$p['_id']."'");
 
             $d['status'] = "ok";
             $d['data'] = "Data berhasil disimpan";
@@ -105,10 +119,15 @@ class Data_mapel extends CI_Controller {
 
     public function index() {
     	$this->d['p'] = "list";
-        $this->d['p_kelompok'] = array("A"=>"Kelompok A","B"=>"Kelompok B","MULOK"=>"Muatan Lokal","PUS"=>"Program Unggulan Sekolah","P5"=>"Projek Penguatan Profil Pelajar Pancasila");
+        $this->d['p_kelompok'] = array("A"=>"Kelompok A","B"=>"Kelompok B","C"=>"Kelompok C","lm"=>"Lintas Minat","MULOK"=>"Muatan Lokal","PUS"=>"Program Unggulan Sekolah","ICB"=>"ISLAMIC CHARACTER BUILDING","PSS"=>"PERSONAL AND SOCIAL SKILLS","LA"=>"LEARNING ATTITUDES","TAHFIZ"=>"TAHFIZ");
         $this->d['p_tambahansub'] = array("NO"=>"-","GHB"=>"Gaya Hidup Berkelanjutan","KL"=>"Kearifan Lokal","BTI"=>"Bhineka Tunggal Ika","BJR"=>"Bangunlah Jiwa dan Raganya","SD"=>"Suara Demokrasi","BBMN"=>"Berekayasa dan Berteknologi untuk Membangun NKRI","KW"=>"Kewirausahaan");
         $this->d['p_nilaisikap'] = array("1"=>"Ada Nilai Sikap","0"=>"Tidak ada nilai sikap");
         $this->d['p_language'] = array("id"=>"Indonesia","eng"=>"English");
+        $this->d['p_kategori_penilaian'] = array(
+            "without_performance" => "Without Performance-Based Assessment",
+            "with_performance" => "With Performance-Based Assessment",
+            "without_written" => "Without Written Examination"
+        );
 
         $this->load->view("template_utama", $this->d);
     }

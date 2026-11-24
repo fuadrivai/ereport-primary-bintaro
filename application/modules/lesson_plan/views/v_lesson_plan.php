@@ -97,44 +97,103 @@
     }
 
     .result-card {
-        background: #f8fafc;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
         border-radius: 16px;
-        padding: 25px;
-        border: 1px dashed #6366f1;
+        padding: 24px 28px;
+        border: 1.5px solid #e2e8f0;
+        border-left: 5px solid #4f46e5;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
         display: flex;
         align-items: center;
         justify-content: space-between;
+        gap: 20px;
+    }
+
+    .result-badges {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        flex-wrap: wrap;
+    }
+
+    .badge-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-tag.badge-success {
+        background: #ecfdf5;
+        color: #059669;
+        border: 1px solid #a7f3d0;
+    }
+
+    .badge-tag.badge-spirit {
+        background: #eef2ff;
+        color: #4f46e5;
+        border: 1px solid #c7d2fe;
     }
 
     .result-info h4 {
         margin: 0;
         color: #1e293b;
         font-weight: 700;
-        font-size: 16px;
+        font-size: 17px;
     }
 
-    .result-info p {
-        margin: 5px 0 0;
-        color: #64748b;
-        font-size: 13px;
+    .doa-text {
+        margin: 6px 0 0;
+        color: #475569;
+        font-size: 13.5px;
+        line-height: 1.5;
+        font-style: italic;
+    }
+
+    .doa-text i {
+        color: #6366f1;
+        opacity: 0.7;
+        margin-right: 4px;
     }
 
     .btn-view {
-        background: #10b981;
-        color: #fff;
-        padding: 10px 20px;
-        border-radius: 10px;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: #fff !important;
+        padding: 12px 22px;
+        border-radius: 12px;
         font-weight: 600;
-        text-decoration: none;
+        font-size: 14px;
+        text-decoration: none !important;
         transition: all 0.2s;
-        display: flex;
+        display: inline-flex;
         align-items: center;
         gap: 8px;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+        white-space: nowrap;
     }
 
     .btn-view:hover {
-        background: #059669;
-        color: #fff;
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(16, 185, 129, 0.35);
+        color: #fff !important;
+    }
+
+    @media (max-width: 768px) {
+        .result-card {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .btn-view {
+            width: 100%;
+            justify-content: center;
+        }
     }
 
     .loader {
@@ -201,7 +260,7 @@
             <div class="generator-body">
                 <form id="lessonPlanForm">
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label>Grade Level</label>
                                 <select name="grade" class="form-control" required>
@@ -212,7 +271,16 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Language</label>
+                                <select name="language" class="form-control" required>
+                                    <option value="English" selected>English</option>
+                                    <option value="Indonesia">Indonesia</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label>Number of Meetings</label>
                                 <input type="number" name="numMeetings" class="form-control" placeholder="e.g. 3" min="1" required>
@@ -254,7 +322,7 @@
 
                     <div class="form-group">
                         <label>Teacher Email</label>
-                        <input type="email" name="teacherEmail" class="form-control">
+                        <input type="email" name="teacherEmail" class="form-control" value="<?=isset($teacher_email) ? htmlspecialchars($teacher_email) : ''?>" required>
                     </div>
 
                     <div style="margin-top: 30px;">
@@ -268,12 +336,21 @@
                 <div class="result-container" id="resultContainer">
                     <div class="result-card">
                         <div class="result-info">
+                            <div class="result-badges">
+                                <span class="badge-tag badge-success"><i class="fa fa-check-circle"></i> Lesson Plan Ready</span>
+                                <span class="badge-tag badge-spirit"><i class="fa fa-heart"></i> Inspiring Educators</span>
+                            </div>
                             <h4 id="docTitle">Lesson Plan Generated!</h4>
-                            <p>Your document has been created and is ready for review.</p>
+                            <p class="doa-text">
+                                <i class="fa fa-quote-left"></i>
+                                May Allah SWT bless your hard work and grant ease to every classroom moment today. Teach with passion, love, and inspire greatness in every student! 🌟🤲
+                            </p>
                         </div>
-                        <a href="#" id="docLink" target="_blank" class="btn-view">
-                            <i class="fa fa-external-link"></i> Open Document
-                        </a>
+                        <div class="result-action">
+                            <a href="#" id="docLink" target="_blank" class="btn-view">
+                                <i class="fa fa-external-link"></i> Open Document
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -304,24 +381,35 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.status === 'success') {
-                    $('#docTitle').text(response.document_title);
+                    $('#docTitle').text(response.document_title || "Lesson Plan Generated!");
                     $('#docLink').attr('href', response.document_link);
                     $result.fadeIn();
                     
                     swal({
-                        title: "Success!",
-                        text: "Your lesson plan has been generated.",
+                        title: "Alhamdulillah, Success! 🎉✨",
+                        html: '<div style="font-size: 14px; color: #334155; line-height: 1.6; text-align: center; margin-top: 10px;">' +
+                              '<p style="font-size: 16px; font-weight: 700; color: #4338ca; margin-bottom: 12px;">' +
+                              'Your lesson plan has been successfully created and is ready to use! 📝' +
+                              '</p>' +
+                              '<p style="margin-bottom: 12px;">' +
+                              '<strong>Keep up the wonderful spirit, amazing teachers! 💪🌟</strong><br>' +
+                              'May every effort, second of your time, and knowledge shared become an enduring source of continuous blessings and rewards for you and your family.' +
+                              '</p>' +
+                              '<p style="color: #64748b; font-style: italic; margin-bottom: 0;">' +
+                              '"May Allah SWT grant you ease, patience, and boundless joy in nurturing our future generations. Have an inspiring and blessed teaching day!" 🤲❤️' +
+                              '</p>' +
+                              '</div>',
                         type: "success",
-                        timer: 2000,
-                        showConfirmButton: false
+                        confirmButtonText: '<i class="fa fa-heart"></i> Aamiin, Ready to Teach! 🚀',
+                        confirmButtonColor: "#4f46e5"
                     });
                 } else {
-                    swal("Error", response.message || "Failed to generate lesson plan", "error");
+                    swal("Failed", response.message || "Failed to generate lesson plan. Please try again.", "error");
                 }
             },
             error: function(xhr, status, error) {
                 console.error(xhr.responseText);
-                swal("API Error", "There was an error connecting to the generation service.", "error");
+                swal("Connection Error", "There was an error connecting to the lesson plan generation service.", "error");
             },
             complete: function() {
                 $btn.prop('disabled', false);

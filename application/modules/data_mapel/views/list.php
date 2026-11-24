@@ -16,13 +16,14 @@
                 <?php echo $this->session->userdata('ue'); ?>
                 <table class="table table-hover table-striped" id="datatabel" style="width: 100%">
                     <thead>
-                        <td width="10%">No</td>
+                        <td width="5%">No</td>
                         <td width="10%">Kelompok</td>
                         <td width="10%">Kode Singkat</td>
-                        <td width="35%">Nama</td>
+                        <td width="25%">Nama</td>
+                        <td width="15%">Kategori SOP</td>
                         <td width="10%">KKM</td>
-                        <td width="5%">Bahasa/Language</td>
-                        <td width="20%">Aksi</td>
+                        <td width="10%">Bahasa/Language</td>
+                        <td width="15%">Aksi</td>
                     </thead>
 
                 </table>
@@ -68,6 +69,7 @@
                         <input type="text" name="nama" class="form-control" id="nama" required>
                     </div>
                 </div>
+
                 <div class="form-group">
                     <label for="nama" class="col-sm-3 control-label">KKM</label>
                     <div class="col-sm-9">
@@ -78,6 +80,12 @@
                     <label for="kode" class="col-sm-3 control-label">Bahasa/Language</label>
                     <div class="col-sm-9">
                         <?php echo form_dropdown('lang', $p_language, '', 'class="form-control" id="lang" required'); ?>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="kategori_penilaian" class="col-sm-3 control-label">Kategori Penilaian SOP</label>
+                    <div class="col-sm-9">
+                        <?php echo form_dropdown('kategori_penilaian', $p_kategori_penilaian, '', 'class="form-control" id="kategori_penilaian" required'); ?>
                     </div>
                 </div>
             </div>
@@ -138,6 +146,7 @@
                 $("#nama").val(data.data.nama);
                 $("#kkm").val(data.data.kkm);
                 $("#lang").val(data.data.lang);
+                $("#kategori_penilaian").val(data.data.kategori_penilaian || 'without_performance');
             }
         });
         return false;

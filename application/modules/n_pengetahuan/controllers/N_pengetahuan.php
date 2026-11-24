@@ -33,7 +33,7 @@ class N_pengetahuan extends CI_Controller {
         $html = '';
 
         $detil_guru = $this->db->query("SELECT 
-                                b.nama nmmapel, b.lang, b.kkm, c.nama nmkelas, d.nama nmguru
+                                b.nama nmmapel, b.lang, b.kkm, c.nama nmkelas, c.tingkat, d.nama nmguru
                                 FROM t_guru_mapel a
                                 INNER JOIN m_mapel b ON a.id_mapel = b.id 
                                 INNER JOIN m_kelas c ON a.id_kelas = c.id
@@ -217,16 +217,27 @@ class N_pengetahuan extends CI_Controller {
                 $nilai_uts = !empty($d_nilai[$idsx]['uts']) ? number_format($d_nilai[$idsx]['uts']) : 0;
                 $nilai_uas = !empty($d_nilai[$idsx]['uas']) ? number_format($d_nilai[$idsx]['uas']) : 0;
 
-                 $p_h = $this->config->item('pnp_h');
-                $p_t = $this->config->item('pnp_t');
-                $p_a = $this->config->item('pnp_a');
-                $jml = $p_h+$p_t+$p_a;
+                if (function_exists('hitung_nilai_sop')) {
+                    $components_np = [
+                        'h' => $nilai_akhir_kd,
+                        't' => $nilai_uts,
+                        'a' => $nilai_uas,
+                        'p' => 0,
+                        'b' => 0
+                    ];
+                    $na_np = number_format(hitung_nilai_sop($components_np, $pc_bawa[0], (int)$semester, false, $detil_guru['tingkat'] ?? null));
+                } else {
+                    $p_h = $this->config->item('pnp_h');
+                    $p_t = $this->config->item('pnp_t');
+                    $p_a = $this->config->item('pnp_a');
+                    $jml = $p_h+$p_t+$p_a;
 
-                $p_h = ($p_h / $jml) * 100; 
-                $p_t = ($p_t / $jml) * 100; 
-                $p_a = ($p_a / $jml) * 100; 
-                
-                $na_np = number_format((($nilai_akhir_kd * $p_h) + ($nilai_uts * $p_t) + ($nilai_uas * $p_a)) / 100);
+                    $p_h = ($p_h / $jml) * 100; 
+                    $p_t = ($p_t / $jml) * 100; 
+                    $p_a = ($p_a / $jml) * 100; 
+                    
+                    $na_np = number_format((($nilai_akhir_kd * $p_h) + ($nilai_uts * $p_t) + ($nilai_uas * $p_a)) / 100);
+                }
                 
                 //pengujian kkm
                 if($na_np < $detil_guru['kkm']){
@@ -310,10 +321,12 @@ class N_pengetahuan extends CI_Controller {
         $q_siswa_kelas = $this->db->query("SELECT a.id_siswa, b.nama nmsiswa FROM t_kelas_siswa a LEFT JOIN m_siswa b ON a.id_siswa = b.id WHERE a.id_kelas = '".$pc_bawa[1]."' AND a.ta = '".$this->d['tahun']."' order by b.nama ASC")->result_array();
 
         $d_kd = array();
+        $kd_codes = array();
         if (!empty($q_kd_guru_ini)) {
             foreach ($q_kd_guru_ini as $v) {
                 $idx = $v['id'];
                 $d_kd[$idx]['kode'] = $v['no_kd'];
+                $kd_codes[] = trim((string)$v['no_kd']);
             }
         }
         $d_nilai = array();
@@ -849,10 +862,12 @@ public function import_from_agilix($bawa){
         $q_siswa_kelas = $this->db->query("SELECT a.id_siswa, b.nama nmsiswa FROM t_kelas_siswa a LEFT JOIN m_siswa b ON a.id_siswa = b.id WHERE a.id_kelas = '".$pc_bawa[1]."' AND a.ta = '".$this->d['tahun']."'")->result_array();
 
         $d_kd = array();
+        $kd_codes = array();
         if (!empty($q_kd_guru_ini)) {
             foreach ($q_kd_guru_ini as $v) {
                 $idx = $v['id'];
                 $d_kd[$idx]['kode'] = $v['no_kd'];
+                $kd_codes[] = trim((string)$v['no_kd']);
             }
         }
         if (!empty($d_kd)) {
@@ -917,7 +932,7 @@ public function import_from_agilix($bawa){
 
         $xmlManifest = @simplexml_load_string($manifestResponse);
         $knowledgeFolderId = null;
-        $targetFolderName = ($semester == 2) ? 'Knowledge 2' : 'Knowledge';
+        $targetFolderName = ($semester == 2) ? 'Knowledge 2' : 'Knowledge 1';
 
         if ($xmlManifest) {
             $eReportItem = null;
@@ -967,28 +982,38 @@ public function import_from_agilix($bawa){
 
         $id_siswa = $siswa->id;
 
-        $midtermScore = 0;
-        $finalScore = 0;
+        $midtermScore = null;
+        $finalScore = null;
+        $alternativeScore = null;
+        $practicalScore = null;
 
         // Ambil Nilai per Item
         if (isset($enrollment->grades->items->item)) {
             foreach ($enrollment->grades->items->item as $item) {
                 $gradable = (string)$item['gradable'];
                 $achieved = (string)$item['achieved'];
-                $title    = (string)$item['title'];
+                $possible = (string)$item['possible'];
+                $title    = trim((string)$item['title']);
                 $parentId = (string)$item['parentid'];
+                $itemId   = (string)$item['itemid'];
 
-                if ($knowledgeFolderId && $parentId !== $knowledgeFolderId) {
+                if ($gradable !== 'true') {
                     continue;
                 }
 
-                if ($gradable === 'true') {
+                $isKnowledgeItem = ($knowledgeFolderId && $parentId === $knowledgeFolderId);
+
+                if ($isKnowledgeItem) {
                     $nilai = ($achieved !== '') ? floatval($achieved) : 0;
 
                     if ($title === 'Midterm Score') {
                         $midtermScore = $nilai;
-                    } elseif ($title === 'Final Score') {
+                    } elseif ($title === 'Final Score' || $title === 'End-of-Year Score') {
                         $finalScore = $nilai;
+                    } elseif ($title === 'Alternative Assessment') {
+                        $alternativeScore = $nilai;
+                    } elseif ($title === 'Practical Test Score' || $title === 'Practical Test' || $title === 'Performance Task') {
+                        $practicalScore = $nilai;
                     } elseif ($achieved !== '') {
                         // Cari KD berdasarkan Title di tabel t_mapel_kd
                         $kd = $this->db->query("SELECT id FROM t_mapel_kd WHERE no_kd = ? AND id_mapel = ? AND tingkat = ? AND semester = ? AND jenis = 'P'", 
@@ -1000,15 +1025,65 @@ public function import_from_agilix($bawa){
                         }
                     }
                     $successCount++;
+                } else {
+                    // Item di luar Knowledge Folder: Cek apakah tugas manual guru (Buzz Assignment)
+                    // Syarat: bukan item sistem e-report dan ada nilai (achieved !== '')
+                    $systemTitles = [
+                        'Midterm Score', 'Final Score', 'End-of-Year Score', 
+                        'Alternative Assessment', 'Practical Test Score', 'Practical Test', 'Performance Task'
+                    ];
+
+                    if ($achieved !== '' && !in_array($title, $systemTitles) && !in_array($title, $kd_codes)) {
+                        $achievedVal = floatval($achieved);
+                        $possibleVal = (!empty($possible) && floatval($possible) > 0) ? floatval($possible) : 100;
+                        $scoreNormalized = ($possibleVal > 0) ? round(($achievedVal / $possibleVal) * 100, 2) : $achievedVal;
+
+                        $this->db->query("REPLACE INTO t_nilai_buzz_detail (id_guru_mapel, id_siswa, tasm, item_id, item_title, nilai)
+                                          VALUES (?, ?, ?, ?, ?, ?)", 
+                                          [$id_guru_mapel, $id_siswa, $tasm, $itemId, $title, $scoreNormalized]);
+                        $successCount++;
+                    }
                 }
             }
         }
 
-        // Simpan Midterm & Final (0 jika tidak ada)
-        $this->db->query("REPLACE INTO t_nilai (id_guru_mapel, tasm, jenis, id_mapel_kd, id_siswa, nilai)
-                          VALUES (?, ?, 't', ?, ?, ?)", [$id_guru_mapel, $tasm, $id_mapel, $id_siswa, $midtermScore]);
-        $this->db->query("REPLACE INTO t_nilai (id_guru_mapel, tasm, jenis, id_mapel_kd, id_siswa, nilai)
-                          VALUES (?, ?, 'a', ?, ?, ?)", [$id_guru_mapel, $tasm, $id_mapel, $id_siswa, $finalScore]);
+        // Simpan nilai berdasarkan kategori mapel SOP
+        $kategoriMapel = function_exists('get_kategori_penilaian_mapel') ? get_kategori_penilaian_mapel($id_mapel) : 'without_performance';
+
+        if ($kategoriMapel === 'without_written') {
+            // Mapel non-written: Simpan alternative score jika ada di Buzz
+            if ($alternativeScore !== null) {
+                $this->db->query("REPLACE INTO t_nilai (id_guru_mapel, tasm, jenis, id_mapel_kd, id_siswa, nilai)
+                                  VALUES (?, ?, 'p', ?, ?, ?)", [$id_guru_mapel, $tasm, $id_mapel, $id_siswa, $alternativeScore]);
+            }
+            // Simpan Midterm hanya jika itemnya ada di Buzz (backward compatibility guru yang input PTS kemarin)
+            if ($midtermScore !== null) {
+                $this->db->query("REPLACE INTO t_nilai (id_guru_mapel, tasm, jenis, id_mapel_kd, id_siswa, nilai)
+                                  VALUES (?, ?, 't', ?, ?, ?)", [$id_guru_mapel, $tasm, $id_mapel, $id_siswa, $midtermScore]);
+            }
+        } else {
+            // Mapel dengan ujian tertulis (with_performance / without_performance)
+            $this->db->query("REPLACE INTO t_nilai (id_guru_mapel, tasm, jenis, id_mapel_kd, id_siswa, nilai)
+                              VALUES (?, ?, 't', ?, ?, ?)", [$id_guru_mapel, $tasm, $id_mapel, $id_siswa, ($midtermScore !== null ? $midtermScore : 0)]);
+            $this->db->query("REPLACE INTO t_nilai (id_guru_mapel, tasm, jenis, id_mapel_kd, id_siswa, nilai)
+                              VALUES (?, ?, 'a', ?, ?, ?)", [$id_guru_mapel, $tasm, $id_mapel, $id_siswa, ($finalScore !== null ? $finalScore : 0)]);
+            if ($practicalScore !== null) {
+                $this->db->query("REPLACE INTO t_nilai (id_guru_mapel, tasm, jenis, id_mapel_kd, id_siswa, nilai)
+                                  VALUES (?, ?, 'p', ?, ?, ?)", [$id_guru_mapel, $tasm, $id_mapel, $id_siswa, $practicalScore]);
+                $this->db->query("REPLACE INTO t_nilai_ket (id_guru_mapel, tasm, jenis, id_mapel_kd, id_siswa, nilai)
+                                  VALUES (?, ?, 'p', ?, ?, ?)", [$id_guru_mapel, $tasm, $id_mapel, $id_siswa, $practicalScore]);
+            }
+        }
+
+        // Hitung & simpan agregasi Buzz Assignment (jenis = 'b', bobot 10%)
+        $avgBuzz = $this->db->query("SELECT ROUND(AVG(nilai)) as avg_val 
+                                     FROM t_nilai_buzz_detail 
+                                     WHERE id_guru_mapel = ? AND id_siswa = ? AND tasm = ?", 
+                                     [$id_guru_mapel, $id_siswa, $tasm])->row();
+        if ($avgBuzz && $avgBuzz->avg_val !== null) {
+            $this->db->query("REPLACE INTO t_nilai (id_guru_mapel, tasm, jenis, id_mapel_kd, id_siswa, nilai)
+                              VALUES (?, ?, 'b', ?, ?, ?)", [$id_guru_mapel, $tasm, $id_mapel, $id_siswa, $avgBuzz->avg_val]);
+        }
     }
 
     echo json_encode([
@@ -1020,79 +1095,187 @@ public function import_from_agilix($bawa){
                 }
         
     }
+private $wh_rid = '';
+
+private function wh_log($label, $data = null)
+{
+    // $file = FCPATH . 'application/logs/webhook_grade_' . date('Y-m-d') . '.log';
+    // $line = '[' . date('Y-m-d H:i:s') . '][' . $this->wh_rid . '] ' . $label;
+    // if ($data !== null) {
+    //     $line .= ' | ' . (is_string($data)
+    //         ? $data
+    //         : json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+    // }
+    // @file_put_contents($file, $line . PHP_EOL, FILE_APPEND | LOCK_EX);
+}
 public function webhook_grade_created()
 {
     header('Content-Type: application/json');
+    $this->wh_rid = substr(md5(uniqid('', true)), 0, 8);
+
+    // LOG: request masuk
     $input = file_get_contents("php://input");
+    $this->wh_log('REQUEST MASUK', [
+        'method'       => $_SERVER['REQUEST_METHOD'] ?? null,
+        'ip'           => $_SERVER['REMOTE_ADDR'] ?? null,
+        'content_type' => $_SERVER['CONTENT_TYPE'] ?? null,
+        'raw_body'     => $input,
+    ]);
+
     $json = json_decode($input, true);
+    if (!is_array($json)) {
+        $this->wh_log('JSON INVALID', json_last_error_msg());
+        echo json_encode(['status' => 'error', 'message' => 'invalid json']);
+        return;
+    }
 
     $enrollmentId = $json['data']['enrollmentId'] ?? null;
     $itemId       = $json['data']['itemId'] ?? null;
     $achieved     = $json['data']['newGrade']['achieved'] ?? 0;
 
+    $this->wh_log('PARSED JSON', [
+        'enrollmentId' => $enrollmentId,
+        'itemId'       => $itemId,
+        'itemId_type'  => gettype($itemId),
+        'achieved'     => $achieved,
+    ]);
+
     // 1. GET TOKEN
     $token = get_buzz_token();
+    $this->wh_log('TOKEN', $token ? (substr($token, 0, 6) . '... (len ' . strlen($token) . ')') : 'KOSONG/FALSE');
 
     // 2. CALL API BUZZ
     $url = "http://103.247.217.153:8000/getenrollmentgradebook2?_token={$token}&itemid={$itemId}&enrollmentid={$enrollmentId}";
-    
+    $this->wh_log('CALL API', str_replace((string)$token, '***TOKEN***', $url));
+
+    $t0 = microtime(true);
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5); 
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
     $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlErr  = curl_error($ch);
     curl_close($ch);
 
-    // 3. PROSES XML (Direct Parsing)
-    // Gunakan simplexml untuk efisiensi memory
-    $xml = @simplexml_load_string($response);
-    
+    $this->wh_log('API RESPONSE', [
+        'http_code' => $httpCode,
+        'curl_err'  => $curlErr,
+        'time_ms'   => round((microtime(true) - $t0) * 1000),
+        'length'    => is_string($response) ? strlen($response) : 0,
+        'body'      => is_string($response) ? substr($response, 0, 2000) : $response,
+    ]);
+
+    // 3. PROSES XML
+    libxml_use_internal_errors(true);
+    $xml = simplexml_load_string((string)$response);
+
     if ($xml === false || !isset($xml->enrollment)) {
-        // Log jika gagal agar bisa di debug
-        file_put_contents(FCPATH . 'application/logs/webhook_error.log', date('Y-m-d H:i:s') . " | XML Fail | " . substr($response, 0, 100) . "\n", FILE_APPEND);
+        $errs = [];
+        foreach (libxml_get_errors() as $e) {
+            $errs[] = trim($e->message);
+        }
+        libxml_clear_errors();
+        $this->wh_log('XML GAGAL', [
+            'xml_errors'     => $errs,
+            'has_enrollment' => ($xml !== false) ? isset($xml->enrollment) : false,
+            'response_head'  => substr((string)$response, 0, 300),
+        ]);
+        echo json_encode(['status' => 'error', 'message' => 'xml parse failed']);
         return;
     }
 
-    // Parsing data dari struktur XML Buzz
-    // Format XML biasanya: <response> <enrollment> <entity title="...">...
-    $enrollment = $xml->enrollment;
+    $enrollment  = $xml->enrollment;
     $entityTitle = (string)$enrollment->entity['title'];
-    
-    $parts = explode(" - ", $entityTitle);
+
+    $parts   = explode(" - ", $entityTitle);
     $nmmapel = trim($parts[0] ?? '');
     $nmkelas = trim($parts[1] ?? '');
-    
+
     $firstname = (string)$enrollment->user['firstname'];
     $lastname  = (string)$enrollment->user['lastname'];
     $fullname  = trim($firstname . ' ' . $lastname);
 
+    $this->wh_log('XML PARSED', [
+        'entityTitle' => $entityTitle,
+        'parts_count' => count($parts),
+        'nmmapel'     => $nmmapel,
+        'nmkelas'     => $nmkelas,
+        'fullname'    => $fullname,
+    ]);
+
     // 4. DATABASE LOGIC
     $siswa = $this->db->query("SELECT id FROM m_siswa WHERE nama = ? ORDER BY id DESC LIMIT 1", [$fullname])->row();
-    
-    $tasm = $this->d['tasm'];
-    $detil_mp = $this->db->query("SELECT a.id, a.id_mapel, c.tingkat 
+    $this->wh_log('QUERY SISWA', [
+        'nama_dicari' => $fullname,
+        'hasil'       => $siswa ? $siswa->id : 'TIDAK DITEMUKAN',
+        'db_error'    => $this->db->error(),
+    ]);
+
+    $tasm = $this->d['tasm'] ?? null;
+    $detil_mp = $this->db->query("SELECT a.id, a.id_mapel, c.tingkat
                                   FROM t_guru_mapel a
-                                  INNER JOIN m_mapel b ON a.id_mapel = b.id 
-                                  INNER JOIN m_kelas c ON a.id_kelas = c.id 
-                                  WHERE b.nama = ? AND c.nama = ? AND a.tasm = ?", 
+                                  INNER JOIN m_mapel b ON a.id_mapel = b.id
+                                  INNER JOIN m_kelas c ON a.id_kelas = c.id
+                                  WHERE b.nama = ? AND c.nama = ? AND a.tasm = ?",
                                   [$nmmapel, $nmkelas, $tasm])->row_array();
+    $this->wh_log('QUERY DETIL_MP', [
+        'params'   => ['mapel' => $nmmapel, 'kelas' => $nmkelas, 'tasm' => $tasm],
+        'tasm_set' => isset($this->d['tasm']),
+        'hasil'    => $detil_mp ?: 'TIDAK DITEMUKAN',
+        'db_error' => $this->db->error(),
+    ]);
 
     if ($siswa && $detil_mp) {
         $itemTitle = '';
-        
-        // Cari Title di dalam list items (XML structure)
-        // Biasanya: <grades><items><item itemid="..." title="..." />
+        $possible  = '';
+        $itemsSeen = [];
+
         if (isset($enrollment->grades->items->item)) {
             foreach ($enrollment->grades->items->item as $it) {
-                if ((string)$it['itemid'] === $itemId) {
-                    $itemTitle = (string)$it['title'];
+                $itemsSeen[] = (string)$it['itemid'];
+                if ((string)$it['itemid'] === (string)$itemId) { // cast ke string
+                    $itemTitle = trim((string)$it['title']);
+                    $possible  = (string)$it['possible'];
                     break;
                 }
             }
+        } else {
+            $this->wh_log('STRUKTUR XML', 'enrollment->grades->items->item TIDAK ADA');
         }
 
+        $this->wh_log('CARI ITEM', [
+            'itemId_dicari' => $itemId,
+            'items_di_xml'  => $itemsSeen,
+            'itemTitle'     => $itemTitle,
+            'possible'      => $possible,
+            'ditemukan'     => $itemTitle !== '',
+        ]);
+
         // Simpan Nilai
-        $this->save_score_from_xml($itemTitle, $detil_mp, $siswa->id, $achieved);
+        try {
+            $result = $this->save_score_from_xml($itemTitle, $detil_mp, $siswa->id, $achieved, $itemId, $possible);
+            $this->wh_log('SAVE SCORE', [
+                'args' => [
+                    'itemTitle'     => $itemTitle,
+                    'id_guru_mapel' => $detil_mp['id'] ?? null,
+                    'id_siswa'      => $siswa->id,
+                    'achieved'      => $achieved,
+                    'itemId'        => $itemId,
+                    'possible'      => $possible,
+                ],
+                'return'        => $result,
+                'last_query'    => $this->db->last_query(),
+                'affected_rows' => $this->db->affected_rows(),
+                'db_error'      => $this->db->error(),
+            ]);
+        } catch (Throwable $e) {
+            $this->wh_log('SAVE SCORE EXCEPTION', $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+        }
+    } else {
+        $this->wh_log('SKIP SIMPAN', [
+            'alasan' => !$siswa ? 'siswa tidak ditemukan' : 'detil_mp tidak ditemukan',
+        ]);
     }
 
     echo json_encode(['status' => 'success']);
@@ -1101,16 +1284,24 @@ public function webhook_grade_created()
 /**
  * Fungsi simpan nilai yang mendukung logika XML
  */
-private function save_score_from_xml($title, $mp, $siswa_id, $nilai) {
+private function save_score_from_xml($title, $mp, $siswa_id, $nilai, $itemId = null, $possible = null) {
     $tasm = $this->d['tasm'];
     $sem  = $this->d['semester'];
 
     if ($title === 'Midterm Score') {
         $this->db->query("REPLACE INTO t_nilai (id_guru_mapel, tasm, jenis, id_mapel_kd, id_siswa, nilai) 
                           VALUES (?, ?, 't', ?, ?, ?)", [$mp['id'], $tasm, $mp['id_mapel'], $siswa_id, $nilai]);
-    } elseif ($title === 'Final Score') {
+    } elseif ($title === 'Final Score' || $title === 'End-of-Year Score') {
         $this->db->query("REPLACE INTO t_nilai (id_guru_mapel, tasm, jenis, id_mapel_kd, id_siswa, nilai) 
                           VALUES (?, ?, 'a', ?, ?, ?)", [$mp['id'], $tasm, $mp['id_mapel'], $siswa_id, $nilai]);
+    } elseif ($title === 'Alternative Assessment') {
+        $this->db->query("REPLACE INTO t_nilai (id_guru_mapel, tasm, jenis, id_mapel_kd, id_siswa, nilai) 
+                          VALUES (?, ?, 'p', ?, ?, ?)", [$mp['id'], $tasm, $mp['id_mapel'], $siswa_id, $nilai]);
+    } elseif ($title === 'Practical Test Score' || $title === 'Practical Test' || $title === 'Performance Task') {
+        $this->db->query("REPLACE INTO t_nilai (id_guru_mapel, tasm, jenis, id_mapel_kd, id_siswa, nilai) 
+                          VALUES (?, ?, 'p', ?, ?, ?)", [$mp['id'], $tasm, $mp['id_mapel'], $siswa_id, $nilai]);
+        $this->db->query("REPLACE INTO t_nilai_ket (id_guru_mapel, tasm, jenis, id_mapel_kd, id_siswa, nilai) 
+                          VALUES (?, ?, 'p', ?, ?, ?)", [$mp['id'], $tasm, $mp['id_mapel'], $siswa_id, $nilai]);
     } else {
         // Cari ID KD berdasarkan title yang didapat dari XML
         $kd = $this->db->query("SELECT id FROM t_mapel_kd 
@@ -1119,6 +1310,31 @@ private function save_score_from_xml($title, $mp, $siswa_id, $nilai) {
         if ($kd) {
             $this->db->query("REPLACE INTO t_nilai (id_guru_mapel, tasm, jenis, id_mapel_kd, id_siswa, nilai) 
                               VALUES (?, ?, 'h', ?, ?, ?)", [$mp['id'], $tasm, $kd->id, $siswa_id, $nilai]);
+        } else {
+            // JIKA BUKAN KD dan BUKAN ITEM E-REPORT: Ini adalah Tugas Manual Guru (Buzz Assignment)
+            if (!empty($itemId) && !empty($title)) {
+                $possibleVal = (!empty($possible) && floatval($possible) > 0) ? floatval($possible) : 100;
+                $achievedVal = floatval($nilai);
+                $scoreNormalized = ($possibleVal > 0) ? round(($achievedVal / $possibleVal) * 100, 2) : $achievedVal;
+
+                // 1. Simpan/update detail ke tabel t_nilai_buzz_detail
+                $this->db->query("REPLACE INTO t_nilai_buzz_detail (id_guru_mapel, id_siswa, tasm, item_id, item_title, nilai)
+                                  VALUES (?, ?, ?, ?, ?, ?)", 
+                                  [$mp['id'], $siswa_id, $tasm, $itemId, $title, $scoreNormalized]);
+
+                // 2. Hitung rata-rata terbaru dari t_nilai_buzz_detail untuk siswa & mapel ini
+                $avgBuzz = $this->db->query("SELECT ROUND(AVG(nilai)) as avg_val 
+                                             FROM t_nilai_buzz_detail 
+                                             WHERE id_guru_mapel = ? AND id_siswa = ? AND tasm = ?", 
+                                             [$mp['id'], $siswa_id, $tasm])->row();
+
+                // 3. Update nilai agregasi Buzz Assignment (jenis = 'b') ke t_nilai
+                if ($avgBuzz && $avgBuzz->avg_val !== null) {
+                    $this->db->query("REPLACE INTO t_nilai (id_guru_mapel, tasm, jenis, id_mapel_kd, id_siswa, nilai) 
+                                      VALUES (?, ?, 'b', ?, ?, ?)", 
+                                      [$mp['id'], $tasm, $mp['id_mapel'], $siswa_id, $avgBuzz->avg_val]);
+                }
+            }
         }
     }
 }
@@ -1241,16 +1457,9 @@ public function create_gradebook_items_in_buzz($bawa) {
     if (!$knowledgeFolderId) {
         $knowledgeFolderId = 'knowledge-' . time();
         $this->buzz_put_xml($token, "<requests><item entityid='{$courseId}' itemid='{$knowledgeFolderId}'><data><title>{$titles}</title><parent>{$topicId}</parent><sequence>a</sequence></data></item></requests>");
-        
-        // Buat Midterm & Final otomatis
-        $fixed = ['Midterm Score', 'Final Score'];
-        foreach ($fixed as $f) {
-            $fId = strtolower(str_replace(' ', '-', $f)) . '-' . time();
-            $this->create_assignment_xml($token, $courseId, $fId, $f, $knowledgeFolderId);
-        }
     }
 
-    // 7. Sinkronisasi KD (Cari yang belum ada)
+    // 7. Kumpulkan existing titles di bawah Knowledge Folder
     $existingTitles = [];
     // Reset stack untuk scan ulang judul di bawah Knowledge Folder
     $stack = [];
@@ -1267,11 +1476,46 @@ public function create_gradebook_items_in_buzz($bawa) {
         }
     }
 
+    // 8. Tentukan item penilaian berdasarkan Kategori SOP Mapel
+    $kategori = function_exists('get_kategori_penilaian_mapel') ? get_kategori_penilaian_mapel($id_mapel) : 'without_performance';
+    $fixed = [];
+
+    if ($kategori === 'without_written') {
+        // Without Written Exam: Hanya Alternative Assessment (dan KD topics)
+        // Tidak membuat Midterm Score atau Final Score
+        $fixed = ['Alternative Assessment'];
+    } elseif ($kategori === 'with_performance') {
+        // With Performance: Midterm Score, Final Score / End-of-Year Score, dan Practical Test Score
+        $finalScoreTitle = ($this->d['semester'] == 2) ? 'End-of-Year Score' : 'Final Score';
+        if ($this->d['semester'] == 2 && in_array('Final Score', $existingTitles)) {
+            $finalScoreTitle = 'Final Score';
+        }
+        $fixed = ['Midterm Score', $finalScoreTitle, 'Practical Test Score'];
+    } else {
+        // Without Performance: Midterm Score & Final Score (atau End-of-Year Score di Semester 2)
+        $finalScoreTitle = ($this->d['semester'] == 2) ? 'End-of-Year Score' : 'Final Score';
+        if ($this->d['semester'] == 2 && in_array('Final Score', $existingTitles)) {
+            $finalScoreTitle = 'Final Score';
+        }
+        $fixed = ['Midterm Score', $finalScoreTitle];
+    }
+    // Catatan: Buzz Assignment (10%) TIDAK dibuat di sini (disediakan endpoint sinkronisasi terpisah oleh user).
+
+    // Buat item tetap jika belum ada di Buzz
+    foreach ($fixed as $f) {
+        if (in_array($f, $existingTitles)) continue;
+        $fId = strtolower(str_replace(' ', '-', $f)) . '-' . time();
+        $this->create_assignment_xml($token, $courseId, $fId, $f, $knowledgeFolderId);
+        $existingTitles[] = $f;
+    }
+
+    // Buat item KD jika belum ada di Buzz
     foreach ($kd_list as $kd) {
         if (in_array($kd['no_kd'], $existingTitles)) continue;
         
         $uId = 'kd-' . strtolower(str_replace('.', '-', $kd['no_kd'])) . '-' . time();
         $this->create_assignment_xml($token, $courseId, $uId, $kd['no_kd'], $knowledgeFolderId);
+        $existingTitles[] = $kd['no_kd'];
     }
 
     echo json_encode(['status' => 'sukses', 'data' => "Sinkronisasi XML Berhasil."]);
@@ -1484,6 +1728,14 @@ private function buzz_put_xml($token, $xml) {
                     $this->db->query("INSERT INTO t_nilai (tasm,jenis, id_guru_mapel, id_mapel_kd, id_siswa, nilai) VALUES ('".$this->d['tasm']."', '".$p['jenis']."', '".$p['id_guru_mapel']."', '".$p['id_mapel_kd']."', '".$p['id_siswa'][$i]."', '".$s."')");
                     //$queri[] = "add";
                 }
+                if ($p['jenis'] == 'p') {
+                    $cek_ket = $this->db->query("SELECT id FROM t_nilai_ket WHERE id_guru_mapel = '".$p['id_guru_mapel']."' AND id_mapel_kd = '".$p['id_mapel_kd']."' AND id_siswa = '".$p['id_siswa'][$i]."' AND jenis = 'p' AND tasm = '".$this->d['tasm']."'")->num_rows();
+                    if ($cek_ket > 0) {
+                        $this->db->query("UPDATE t_nilai_ket SET nilai = '$s' WHERE id_guru_mapel = '".$p['id_guru_mapel']."' AND id_mapel_kd = '".$p['id_mapel_kd']."' AND id_siswa = '".$p['id_siswa'][$i]."' AND jenis = 'p' AND tasm = '".$this->d['tasm']."'");
+                    } else {
+                        $this->db->query("INSERT INTO t_nilai_ket (tasm,jenis, id_guru_mapel, id_mapel_kd, id_siswa, nilai) VALUES ('".$this->d['tasm']."', 'p', '".$p['id_guru_mapel']."', '".$p['id_mapel_kd']."', '".$p['id_siswa'][$i]."', '".$s."')");
+                    }
+                }
             }
             $i++;
         }
@@ -1502,7 +1754,7 @@ private function buzz_put_xml($token, $xml) {
     public function index($id) {
 
         $this->d['detil_mp'] = $this->db->query("SELECT 
-                                        a.*, b.nama nmmapel,b.kd_singkat, c.nama nmkelas, c.tingkat tingkat
+                                        a.*, b.nama nmmapel, b.kd_singkat, b.kelompok kelompok, c.nama nmkelas, c.tingkat tingkat
                                         FROM t_guru_mapel a
                                         INNER JOIN m_mapel b ON a.id_mapel = b.id 
                                         INNER JOIN m_kelas c ON a.id_kelas = c.id 
@@ -1517,6 +1769,7 @@ private function buzz_put_xml($token, $xml) {
         //echo $this->db->last_query();
         //exit;
         $this->d['id_guru_mapel'] = $id;
+        $this->d['kategori_sop'] = function_exists('get_kategori_penilaian_mapel') ? get_kategori_penilaian_mapel($this->d['detil_mp']['id_mapel']) : 'without_performance';
 
         $this->session->set_userdata("id_guru_mapel", $id);
 
@@ -1527,7 +1780,7 @@ private function buzz_put_xml($token, $xml) {
 
     public function list_kd($id) {
         $this->d['detil_mp'] = $this->db->query("SELECT 
-                                        a.*, b.nama nmmapel, c.nama nmkelas, c.tingkat tingkat
+                                        a.*, b.nama nmmapel, b.kelompok kelompok, c.nama nmkelas, c.tingkat tingkat
                                         FROM t_guru_mapel a
                                         INNER JOIN m_mapel b ON a.id_mapel = b.id 
                                         INNER JOIN m_kelas c ON a.id_kelas = c.id 

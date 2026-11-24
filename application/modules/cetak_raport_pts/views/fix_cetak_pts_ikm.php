@@ -218,7 +218,7 @@
                             <td colspan="2" class="ctr" style="width:80px;padding:10px;">
                                 <?= ($kelB['nilai_pengetahuan'] == 0 || $kelB['nilai_pengetahuan'] === '0' || $kelB['nilai_pengetahuan'] === '0.00') ? "-" : $kelB['nilai_pengetahuan'] ?>
                             </td>
-                            <?php $hide =  $kelB['kd_singkat'] == 'GP' || $kelB['kd_singkat'] == 'SBK' || $kelB['kd_singkat'] == 'DL' || $kelB['kd_singkat'] == 'PE' || $kelB['kd_singkat'] == 'Music' ?>
+                            <?php $hide = ($tingkat == 1 || $tingkat == 2) || $kelB['kd_singkat'] == 'GP' || $kelB['kd_singkat'] == 'SBK' || $kelB['kd_singkat'] == 'DL' || $kelB['kd_singkat'] == 'PE' || $kelB['kd_singkat'] == 'Music' ?>
                             <?php if ($hide) { ?>
                             <td class="ctr" style="width:80px;padding:10px;" colspan="2">-</td>
                             <?php } else { ?>

@@ -8,13 +8,15 @@
     </div>
     <?php
     if (!empty($list_mapelkelas)) {
-        foreach ($list_mapelkelas as $mk) {
-    ?>
+        foreach ($list_mapelkelas as $mk) { ?>
             <div class="col-md-4">
                 <div class="card">
                     <div class="header">
                         <?php
                         if ($mk['nmmapel'] == 'ICB' || $mk['nmmapel'] == 'PSS' || $mk['nmmapel'] == 'LA') {
+                        ?>
+                            <h5 class="title"><?= $mk['namamapel'] . " - " . $mk['nmkelas']; ?> </h5>
+                        <?php } else if ($mk['kelompok'] == 'TAHFIZ') {
                         ?>
                             <h5 class="title"><?= $mk['namamapel'] . " - " . $mk['nmkelas']; ?> </h5>
                         <?php } else { ?>
@@ -28,38 +30,43 @@
                     <div class="content">
                         <ul class="list-group">
                             <?php
-                            if ($mk['nmmapel'] == 'ICB') {
-                            ?>
+                            if ($mk['nmmapel'] == 'ICB') { ?>
                                 <li class="list-group-item"><a href="<?= base_url() . "n_icb/index/" . $mk['id']; ?>"><i class="fa fa-chevron-right"></i> Nilai <?= $mk['namamapel'] ?></a></li>
-                            <?php } else if ($mk['nmmapel'] == 'PSS') {
-                            ?>
+                            <?php } else if ($mk['nmmapel'] == 'PSS') { ?>
                                 <li class="list-group-item"><a href="<?= base_url() . "n_pss/index/" . $mk['id']; ?>"><i class="fa fa-chevron-right"></i> Nilai <?= $mk['namamapel'] ?></a></li>
-                            <?php } else if ($mk['nmmapel'] == 'LA') {
-                            ?>
+                            <?php } else if ($mk['nmmapel'] == 'LA') { ?>
                                 <li class="list-group-item"><a href="<?= base_url() . "n_la/index/" . $mk['id']; ?>"><i class="fa fa-chevron-right"></i> Nilai <?= $mk['namamapel'] ?></a></li>
-                            <?php } else if ($mk['kelompok'] == 'NNA' || $mk['kelompok'] == 'BI' || $mk['kelompok'] == 'KOG' || $mk['kelompok'] == 'FIMO' || $mk['kelompok'] == 'SEK') {
-                            ?>
+                            <?php } else if ($mk['kelompok'] == 'NNA' || $mk['kelompok'] == 'BI' || $mk['kelompok'] == 'KOG' || $mk['kelompok'] == 'FIMO' || $mk['kelompok'] == 'SEK') { ?>
                                 <li class="list-group-item"><a href="<?= base_url() . "n_preschool/index/" . $mk['id']; ?>"><i class="fa fa-chevron-right"></i> Nilai <?= $mk['namamapel'] ?></a></li>
                                 <li class="list-group-item"><a href="<?= base_url() . "n_catatan_guru/index/" . $mk['id']; ?>"><i class="fa fa-chevron-right"></i> Teacher's Note</a></li>
-                            <?php } else if (!$mk['isK13']) { ?>
-                                
-                                <li class="list-group-item"><a href="<?= base_url() . "n_pengetahuan/index/" . $mk['id']; ?>"><i class="fa fa-chevron-right"></i> Sumatif</a> <!--<a href="#" class="badge pull-right"><i class="fa fa-print"></i> --></li>
-                            <?php } else { ?>
-                                <li class="list-group-item"><a href="<?= base_url() . "n_pengetahuan/index/" . $mk['id']; ?>"><i class="fa fa-chevron-right"></i> Knowledge</a> <!--<a href="#" class="badge pull-right"><i class="fa fa-print"></i> --></li>
+                            <?php } else if ($mk['kelompok'] == 'TAHFIZ') { ?>
+                                <li class="list-group-item"><a href="<?= base_url() . "n_pengetahuan/index/" . $mk['id']; ?>"><i class="fa fa-chevron-right"></i> <?= $mk['namamapel'] ?></a></li>
+                            <?php } else { 
+                                $kat = $mk['kategori_sop'] ?? get_kategori_penilaian_mapel($mk['id_mapel']);
+                                if ($kat === 'without_written') { ?>
+                                <li class="list-group-item"><a href="<?= base_url() . "n_pengetahuan/index/" . $mk['id']; ?>"><i class="fa fa-chevron-right"></i> Unit Tests & Alternative Assessment</a></li>
+                                <li class="list-group-item"><a href="<?= base_url() . "n_catatan_guru/index/" . $mk['id']; ?>"><i class="fa fa-chevron-right"></i> Teachers' Note</a></li>
+                                <li class="list-group-item"><a href="<?= base_url() . "view_ledger/show_ledger/0/" . $mk['id_kelas']; ?>"><i class="fa fa-book"></i> Ledger <?= $mk['nmkelas']; ?></a></li>
+                                <?php } else if ($kat === 'with_performance') { ?>
+                                <li class="list-group-item"><a href="<?= base_url() . "n_pengetahuan/index/" . $mk['id']; ?>"><i class="fa fa-chevron-right"></i> Summative & Practical Assessment</a></li>
+                                <li class="list-group-item"><a href="<?= base_url() . "n_catatan_guru/index/" . $mk['id']; ?>"><i class="fa fa-chevron-right"></i> Teachers' Note</a></li>
+                                <li class="list-group-item"><a href="<?= base_url() . "view_ledger/show_ledger/0/" . $mk['id_kelas']; ?>"><i class="fa fa-book"></i> Ledger <?= $mk['nmkelas']; ?></a></li>
+                                <?php } else { ?>
+                                <li class="list-group-item"><a href="<?= base_url() . "n_pengetahuan/index/" . $mk['id']; ?>"><i class="fa fa-chevron-right"></i> Summative Assessment</a></li>
+                                <?php if ($mk['isK13']) { ?>
                                 <li class="list-group-item"><a href="<?= base_url() . "n_keterampilan/index/" . $mk['id']; ?>"><i class="fa fa-chevron-right"></i> Skills</a></li>
-                            <?php
-                            }
-                            ?>
+                                <?php } ?>
+                                <li class="list-group-item"><a href="<?= base_url() . "n_catatan_guru/index/" . $mk['id']; ?>"><i class="fa fa-chevron-right"></i> Teachers' Note</a></li>
+                                <li class="list-group-item"><a href="<?= base_url() . "view_ledger/show_ledger/0/" . $mk['id_kelas']; ?>"><i class="fa fa-book"></i> Ledger <?= $mk['nmkelas']; ?></a></li>
+                                <?php } ?>
+                            <?php } ?>
                             <!-- <li class="list-group-item"><a href="<?= base_url() . "view_mapel/cetak_absensi/" . $mk['id']; ?>" target="_blank"><i class="fa fa-chevron-right"></i>  Cetak Presensi</a></li> 
                     
                     <?php
-                    if ($mk['is_sikap'] == "1") {
-                    ?>
+                    if ($mk['is_sikap'] == "1") { ?>
                     <li class="list-group-item"><a href="<?= base_url() . "n_sikap_sp/index/" . $mk['id']; ?>">Nilai Sikap Spritual</a></li>
                     <li class="list-group-item"><a href="<?= base_url() . "n_sikap_so/index/" . $mk['id']; ?>">Nilai Sikap Sosial</a></li>
-                    <?php
-                    }
-                    ?> -->
+                    <?php } ?> -->
                         </ul>
                     </div>
                 </div>

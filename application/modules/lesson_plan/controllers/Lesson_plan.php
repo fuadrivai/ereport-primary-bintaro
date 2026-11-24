@@ -47,6 +47,8 @@ class Lesson_plan extends CI_Controller
 
         $p = $this->input->post();
         
+        $language = !empty($p['language']) ? trim($p['language']) : 'English';
+
         // Prepare parameters for the API
         $params = [
             "grade" => $p['grade'],
@@ -56,7 +58,9 @@ class Lesson_plan extends CI_Controller
             "sc" => $p['sc'],
             "kc" => $p['kc'],
             "isNewUnit" => isset($p['isNewUnit']) && ($p['isNewUnit'] === 'true' || $p['isNewUnit'] === '1'),
-            "teacherEmail" => $p['teacherEmail']
+            "teacherEmail" => $p['teacherEmail'],
+            "language" => $language,
+            "lang" => $language
         ];
 
         // API Endpoint (Google Apps Script)

@@ -29,6 +29,7 @@ class View_mapel extends CI_Controller
         foreach ($this->d['list_mapelkelas'] as &$s) {
             $jenis_rapor = getJenisRaport($this->d['tasm_id'], $s['tingkat']);
             $s['isK13'] = ($jenis_rapor->nama ?? "") === "K13" ? TRUE : FALSE;
+            $s['kategori_sop'] = get_kategori_penilaian_mapel($s['id_mapel']);
         }
         $this->d['p'] = "v_view_mapel";
         $this->load->view("template_utama", $this->d);
